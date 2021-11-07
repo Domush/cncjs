@@ -295,6 +295,7 @@ class ConsoleWidget extends PureComponent {
                         { [styles.hidden]: minimized },
                         { [styles.fullscreen]: isFullscreen }
                     )}
+                    style={{ width: '100%'; padding-bottom: 10px }}
                 >
                     <Console
                         ref={node => {
