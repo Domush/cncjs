@@ -6,7 +6,7 @@ import Space from 'app/components/Space';
 import Widget from 'app/components/Widget';
 import i18n from 'app/lib/i18n';
 import controller from 'app/lib/controller';
-import ensurePositiveNumber from 'app/lib/ensure-positive-number';
+// import ensurePositiveNumber from 'app/lib/ensure-positive-number';
 import WidgetConfig from '../WidgetConfig';
 import Marlin from './Marlin';
 import Controller from './Controller';
@@ -117,42 +117,6 @@ class MarlinWidget extends PureComponent {
                     }
                 }
             });
-        },
-        changeExtruderTemperature: (event) => {
-            const value = event.target.value;
-            if (typeof value === 'string' && value.trim() === '') {
-                this.setState(state => ({
-                    heater: {
-                        ...state.heater,
-                        extruder: value
-                    }
-                }));
-            } else {
-                this.setState(state => ({
-                    heater: {
-                        ...state.heater,
-                        extruder: ensurePositiveNumber(value)
-                    }
-                }));
-            }
-        },
-        changeHeatedBedTemperature: (event) => {
-            const value = event.target.value;
-            if (typeof value === 'string' && value.trim() === '') {
-                this.setState(state => ({
-                    heater: {
-                        ...state.heater,
-                        heatedBed: value
-                    }
-                }));
-            } else {
-                this.setState(state => ({
-                    heater: {
-                        ...state.heater,
-                        heatedBed: ensurePositiveNumber(value)
-                    }
-                }));
-            }
         }
     };
 
@@ -320,12 +284,6 @@ class MarlinWidget extends PureComponent {
                             <Widget.DropdownButton
                                 toggle={<i className="fa fa-th-large" />}
                             >
-                                <Widget.DropdownMenuItem
-                                    onSelect={() => controller.writeln('M105')}
-                                    disabled={!state.canClick}
-                                >
-                                    {i18n._('Get Extruder Temperature (M105)')}
-                                </Widget.DropdownMenuItem>
                                 <Widget.DropdownMenuItem
                                     onSelect={() => controller.writeln('M114')}
                                     disabled={!state.canClick}
