@@ -10,16 +10,4 @@ import * as macros from './api.macros';
 import * as mdi from './api.mdi';
 import * as users from './api.users';
 
-export {
-    version,
-    state,
-    gcode,
-    controllers,
-    watch,
-    commands,
-    events,
-    machines,
-    macros,
-    mdi,
-    users,
-};
+export { version, state, gcode, controllers, watch, commands, events, machines, macros, mdi, users };

@@ -1,14 +1,15 @@
 # Contributing
 
 ## Index
-* [Troubleshooting](CONTRIBUTING.md#troubleshooting)
-* [Code Contributions](CONTRIBUTING.md#code-contributions)
-* [Keeping a Fork Up-to-date](CONTRIBUTING.md#keeping-a-fork-up-to-date)
-* [Running Local Development Server](CONTRIBUTING.md#running-local-development-server)
-* [Running Production Build](CONTRIBUTING.md#running-production-build)
-* [Build Desktop Apps](CONTRIBUTING.md#build-desktop-apps)
-* [Localization](CONTRIBUTING.md#localization)
-* [Translation Validation](CONTRIBUTING.md#translation-validation)
+
+- [Troubleshooting](CONTRIBUTING.md#troubleshooting)
+- [Code Contributions](CONTRIBUTING.md#code-contributions)
+- [Keeping a Fork Up-to-date](CONTRIBUTING.md#keeping-a-fork-up-to-date)
+- [Running Local Development Server](CONTRIBUTING.md#running-local-development-server)
+- [Running Production Build](CONTRIBUTING.md#running-production-build)
+- [Build Desktop Apps](CONTRIBUTING.md#build-desktop-apps)
+- [Localization](CONTRIBUTING.md#localization)
+- [Translation Validation](CONTRIBUTING.md#translation-validation)
 
 ## Troubleshooting
 
@@ -18,7 +19,7 @@ https://github.com/cncjs/cncjs/wiki/Troubleshooting
 
 ### Step 1: Fork
 
-Fork the project [on GitHub](https://github.com/cncjs/cncjs) and check out your copy locally. 
+Fork the project [on GitHub](https://github.com/cncjs/cncjs) and check out your copy locally.
 
 ![image](https://cloud.githubusercontent.com/assets/447801/16153930/28241308-34db-11e6-81b6-dd8222f044b4.png)
 
@@ -31,6 +32,7 @@ $ git remote add upstream git://github.com/cncjs/cncjs.git
 ### Step 2: Branch
 
 Create a feature branch and before starting:
+
 ```bash
 $ git checkout -b my-feature-branch -t origin/master
 ```
@@ -38,6 +40,7 @@ $ git checkout -b my-feature-branch -t origin/master
 ### Step 3: Install
 
 Run `npm install` to install the dependencies in the local node_modules folder:
+
 ```bash
 $ npm install -g npm
 $ npm install
@@ -46,6 +49,7 @@ $ npm install
 ### Step 4: Commit
 
 Make sure git knows your name and email address:
+
 ```bash
 $ git config --global user.name "User Name"
 $ git config --global user.email "user.email@example.com"
@@ -56,6 +60,7 @@ Writing good commit logs is important. A commit log should describe what changed
 ### Step 5: Rebase
 
 Use `git rebase` (not `git merge`) to sync your work from time to time.
+
 ```bash
 $ git fetch upstream
 $ git rebase upstream/master
@@ -64,6 +69,7 @@ $ git rebase upstream/master
 ### Step 6: Build
 
 Run `npm run prepare` to make sure the build succeed:
+
 ```bash
 $ npm run prepare
 ```
@@ -81,11 +87,13 @@ Go to https://github.com/username/cncjs and select your feature branch. Click on
 ## Keeping a Fork Up-to-date
 
 ### Clone your fork
+
 ```bash
 git clone git@github.com:USERNAME/cncjs.git
 ```
 
 ### Add remote from original repository in your forked repository
+
 ```bash
 cd cncjs
 git remote add upstream git://github.com/cncjs/cncjs.git
@@ -93,11 +101,13 @@ git fetch upstream
 ```
 
 ### Updating your fork from original repo to keep up with their changes
+
 ```bash
 git pull upstream master
 ```
 
 ### Push the local branch to the remote repository
+
 ```bash
 git pull origin master
 git push origin master
@@ -115,6 +125,7 @@ Server is listening on 0.0.0.0:8000
 ```
 
 Connect to http://localhost:8000 and wait until bundle finished.
+
 ```bash
 webpack: wait until bundle finished: /__webpack_hmr
   :  :  :
@@ -136,6 +147,7 @@ Server is listening on 0.0.0.0:8000
 ## Build Desktop Apps
 
 #### Mac
+
 ```bash
 $ npm install  # Ensure that packages are installed
 $ npm run prepare && npm run build:mac-x64
@@ -143,6 +155,7 @@ $ ls -al output/osx/
 ```
 
 #### Windows x86
+
 ```bash
 $ npm install  # Ensure that packages are installed
 $ npm run prepare && npm run build:win-ia32
@@ -150,6 +163,7 @@ $ ls -al output/win-ia32/
 ```
 
 #### Windows x64
+
 ```bash
 $ npm install  # Ensure that packages are installed
 $ npm run prepare && npm run build:win-x64
@@ -157,6 +171,7 @@ $ ls -al output/win/
 ```
 
 #### Linux x86
+
 ```bash
 $ npm install  # Ensure that packages are installed
 $ npm run prepare && npm run build:linux-ia32
@@ -164,6 +179,7 @@ $ ls -al output/linux-ia32/
 ```
 
 #### Linux x64
+
 ```bash
 $ npm install  # Ensure that packages are installed
 $ npm run prepare && npm run build:linux-x64
@@ -198,20 +214,18 @@ You can continue to make more changes and create new commits. When you’re read
 
 ### Creating the pull request
 
-1. Head on over to the repository on GitHub.com where your project lives. For your example, it would be at `https://www.github.com/<your_username>/cncjs`.
-  ![image](https://user-images.githubusercontent.com/447801/30475866-ce417044-9a3a-11e7-814f-c991a92a3be3.png)
+1. Head on over to the repository on GitHub.com where your project lives. For your example, it would be at `https://www.github.com/<your_username>/cncjs`. ![image](https://user-images.githubusercontent.com/447801/30475866-ce417044-9a3a-11e7-814f-c991a92a3be3.png)
 
-2. To the right of the branch menu, click <b>New pull request</b>.<br>
-  ![image](https://user-images.githubusercontent.com/447801/30476056-66f33548-9a3b-11e7-9d9a-e2d010cbc379.png)
+2. To the right of the branch menu, click <b>New pull request</b>.<br> ![image](https://user-images.githubusercontent.com/447801/30476056-66f33548-9a3b-11e7-9d9a-e2d010cbc379.png)
 
-3. Click <b>Create pull request</b>.
-  ![image](https://user-images.githubusercontent.com/447801/30476803-bd3b1428-9a3d-11e7-8588-90d77f3680b5.png)
+3. Click <b>Create pull request</b>. ![image](https://user-images.githubusercontent.com/447801/30476803-bd3b1428-9a3d-11e7-8588-90d77f3680b5.png)
 
 4. That's done.
 
 ## Translation Validation
 
 You can validate the translation by copying translated resource files to the installed directory. Note that your path may differ based on the Node installation path you have in place.
+
 ```bash
 $ cd $(dirname `which cncjs`)/../lib/node_modules/cncjs/dist/app/i18n/
 $ pwd
@@ -221,9 +235,11 @@ $ pwd
 To verify your changes during runtime, it's recommended that you open <b>Developer Tools</b> and disable browser cache. For example:
 
 ##### Step 1: Open Developer Tools and click [Settings]
+
 ![image](https://cloud.githubusercontent.com/assets/447801/16014196/cc4b730c-31c2-11e6-9f78-c84347d12190.png)
 
 ##### Step 2: Disable cache
+
 ![image](https://cloud.githubusercontent.com/assets/447801/16014264/1d32e872-31c3-11e6-9178-6cc06bd0f6b5.png)
 
 Now you can copy resource files to the <b>dist/cncjs/app/i18n</b> directory and refresh your browser to see new updates.

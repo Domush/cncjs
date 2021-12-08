@@ -6,7 +6,7 @@ const fade = (from = 0, to = 1) => keyframes`
 `;
 
 const FadeInOut = styled.span`
-    animation: ${props => (props.disabled ? 'none' : `${fade(props.from, props.to)} 2s linear infinite`)};
+  animation: ${(props) => (props.disabled ? 'none' : `${fade(props.from, props.to)} 2s linear infinite`)};
 `;
 
 export default FadeInOut;
