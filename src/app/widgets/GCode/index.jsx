@@ -63,7 +63,7 @@ class GCodeWidget extends PureComponent {
     },
     'serialport:close': (options) => {
       const initialState = this.getInitialState();
-      this.setState({ ...initialState });
+      this.setState(initialState);
     },
     'gcode:unload': () => {
       this.setState({
@@ -102,8 +102,8 @@ class GCodeWidget extends PureComponent {
     'controller:state': (type, state) => {
       // Grbl
       if (type === GRBL) {
-        const { parserstate } = { ...state };
-        const { modal = {} } = { ...parserstate };
+        const { parserstate } = state;
+        const { modal = {} } = parserstate;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -117,7 +117,7 @@ class GCodeWidget extends PureComponent {
 
       // Marlin
       if (type === MARLIN) {
-        const { modal = {} } = { ...state };
+        const { modal = {} } = state;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -131,8 +131,8 @@ class GCodeWidget extends PureComponent {
 
       // Smoothie
       if (type === SMOOTHIE) {
-        const { parserstate } = { ...state };
-        const { modal = {} } = { ...parserstate };
+        const { parserstate } = state;
+        const { modal = {} } = parserstate;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -146,8 +146,8 @@ class GCodeWidget extends PureComponent {
 
       // TinyG
       if (type === TINYG) {
-        const { sr } = { ...state };
-        const { modal = {} } = { ...sr };
+        const { sr } = state;
+        const { modal = {} } = sr;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -271,8 +271,7 @@ class GCodeWidget extends PureComponent {
 
   render() {
     const { widgetId } = this.props;
-    const { minimized, isFullscreen } = this.state;
-    const { units, bbox } = this.state;
+    const { minimized, isFullscreen, units, bbox } = this.state;
     const isForkedWidget = widgetId.match(/\w+:[\w\-]+/);
     const state = {
       ...this.state,
@@ -282,9 +281,7 @@ class GCodeWidget extends PureComponent {
         });
       }),
     };
-    const actions = {
-      ...this.actions,
-    };
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

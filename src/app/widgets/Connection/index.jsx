@@ -300,7 +300,7 @@ class ConnectionWidget extends PureComponent {
   }
 
   openPort(port, options) {
-    const { baudrate } = { ...options };
+    const { baudrate } = options;
 
     this.setState((state) => ({
       connecting: true,
@@ -348,12 +348,8 @@ class ConnectionWidget extends PureComponent {
     const { widgetId } = this.props;
     const { minimized, isFullscreen } = this.state;
     const isForkedWidget = widgetId.match(/\w+:[\w\-]+/);
-    const state = {
-      ...this.state,
-    };
-    const actions = {
-      ...this.actions,
-    };
+    const state = this.state;
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

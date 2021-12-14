@@ -175,34 +175,63 @@ class ProbeWidget extends PureComponent {
         // Use asolute distance mode
         gcode('G90'),
       ];
-      const wcsProbeCommands = [
-        // Probe (use relative distance mode)
-        gcode(`; ${probeAxis}-Probe`),
-        gcode('G91'),
-        gcode(probeCommand, {
-          [probeAxis]: towardWorkpiece ? -probeDepth : probeDepth,
-          F: probeFeedrate,
-        }),
-        // Use absolute distance mode
-        gcode('G90'),
+      if (controllerType === MARLIN) {
+        const wcsProbeCommands = [
+          // Probe (use relative distance mode)
+          gcode(`; ${probeAxis}-Probe`),
+          gcode('G91'),
+          gcode(probeCommand, {
+            [probeAxis]: towardWorkpiece ? -probeDepth : probeDepth,
+            F: probeFeedrate,
+          }),
+          // Use absolute distance mode
+          gcode('G90'),
 
-        // Set the WCS 0 offset
-        gcode(`; Set the active WCS ${probeAxis}0`),
-        gcode('G10', {
-          L: 20,
-          P: mapWCSToP(wcs),
-          [probeAxis]: touchPlateHeight,
-        }),
+          // Set the WCS 0 offset
+          gcode(`; Set the active WCS ${probeAxis}0`),
+          gcode('G92', {
+            [probeAxis]: touchPlateHeight,
+          }),
 
-        // Retract from the touch plate (use relative distance mode)
-        gcode('; Retract from the touch plate'),
-        gcode('G91'),
-        gcode('G0', {
-          [probeAxis]: retractionDistance,
-        }),
-        // Use absolute distance mode
-        gcode('G90'),
-      ];
+          // Retract from the touch plate (use relative distance mode)
+          gcode('; Retract from the touch plate'),
+          gcode('G91'),
+          gcode('G0', {
+            [probeAxis]: retractionDistance,
+          }),
+          // Use absolute distance mode
+          gcode('G90'),
+        ];
+      } else {
+        const wcsProbeCommands = [
+          // Probe (use relative distance mode)
+          gcode(`; ${probeAxis}-Probe`),
+          gcode('G91'),
+          gcode(probeCommand, {
+            [probeAxis]: towardWorkpiece ? -probeDepth : probeDepth,
+            F: probeFeedrate,
+          }),
+          // Use absolute distance mode
+          gcode('G90'),
+
+          // Set the WCS 0 offset
+          gcode(`; Set the active WCS ${probeAxis}0`),
+          gcode('G10', {
+            L: 20,
+            P: mapWCSToP(wcs),
+            [probeAxis]: touchPlateHeight,
+          }),
+
+          // Retract from the touch plate (use relative distance mode)
+          gcode('; Retract from the touch plate'),
+          gcode('G91'),
+          gcode('G0', {
+            [probeAxis]: retractionDistance,
+          }),
+          // Use absolute distance mode
+          gcode('G90'),
+        ];
+      }
 
       return useTLO ? tloProbeCommands : wcsProbeCommands;
     },
@@ -218,7 +247,7 @@ class ProbeWidget extends PureComponent {
     },
     'serialport:close': (options) => {
       const initialState = this.getInitialState();
-      this.setState({ ...initialState });
+      this.setState(initialState);
     },
     'workflow:state': (workflowState) => {
       this.setState((state) => ({
@@ -232,8 +261,8 @@ class ProbeWidget extends PureComponent {
 
       // Grbl
       if (type === GRBL) {
-        const { parserstate } = { ...state };
-        const { modal = {} } = { ...parserstate };
+        const { parserstate } = state;
+        const { modal = {} } = parserstate;
         units =
           {
             G20: IMPERIAL_UNITS,
@@ -243,7 +272,7 @@ class ProbeWidget extends PureComponent {
 
       // Marlin
       if (type === MARLIN) {
-        const { modal = {} } = { ...state };
+        const { modal = {} } = state;
         units =
           {
             G20: IMPERIAL_UNITS,
@@ -253,8 +282,8 @@ class ProbeWidget extends PureComponent {
 
       // Smoothie
       if (type === SMOOTHIE) {
-        const { parserstate } = { ...state };
-        const { modal = {} } = { ...parserstate };
+        const { parserstate } = state;
+        const { modal = {} } = parserstate;
         units =
           {
             G20: IMPERIAL_UNITS,
@@ -264,8 +293,8 @@ class ProbeWidget extends PureComponent {
 
       // TinyG
       if (type === TINYG) {
-        const { sr } = { ...state };
-        const { modal = {} } = { ...sr };
+        const { sr } = state;
+        const { modal = {} } = sr;
         units =
           {
             G20: IMPERIAL_UNITS,
@@ -303,7 +332,7 @@ class ProbeWidget extends PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { minimized } = this.state;
+    const { minimized, units, probeCommand, useTLO } = this.state;
 
     this.config.set('minimized', minimized);
 
@@ -313,7 +342,6 @@ class ProbeWidget extends PureComponent {
       return;
     }
 
-    const { units, probeCommand, useTLO } = this.state;
     this.config.set('probeCommand', probeCommand);
     this.config.set('useTLO', useTLO);
 
@@ -448,9 +476,7 @@ class ProbeWidget extends PureComponent {
       ...this.state,
       canClick: this.canClick(),
     };
-    const actions = {
-      ...this.actions,
-    };
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

@@ -145,7 +145,7 @@ const createServer = (options, callback) => {
           // > '/cncjs-widget-boilerplate/'
           // proxyPathPattern
           // > RegExp('^/cncjs-widget-boilerplate/custom-widget')
-          const { route = '/' } = { ...options };
+          const { route = '/' } = options;
           const routeWithoutTrailingSlash = trimEnd(route, '/');
           const target = mount.target;
           const targetPathname = url.parse(target).pathname;

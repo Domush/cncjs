@@ -72,9 +72,7 @@ class SmoothieRunner extends events.EventEmitter {
     if (type === SmoothieLineParserResultStatus) {
       const nextState = {
         ...this.state,
-        status: {
-          ...payload,
-        },
+        status: payload,
       };
 
       // Delete the raw key

@@ -256,7 +256,7 @@ class VisualizerWidget extends PureComponent {
       });
     },
     uploadFile: (gcode, meta) => {
-      const { name } = { ...meta };
+      const { name } = meta;
       const context = {};
 
       this.setState((state) => ({
@@ -623,7 +623,7 @@ class VisualizerWidget extends PureComponent {
       this.actions.unloadGCode();
 
       const initialState = this.getInitialState();
-      this.setState((state) => ({ ...initialState }));
+      this.setState((state) => initialState);
     },
     'gcode:load': (name, gcode, context) => {
       gcode = translateExpression(gcode, context); // e.g. xmin,xmax,ymin,ymax,zmin,zmax
@@ -640,7 +640,7 @@ class VisualizerWidget extends PureComponent {
       };
 
       if (hold) {
-        const { err, data } = { ...holdReason };
+        const { err, data } = holdReason;
 
         if (err) {
           notification.type = NOTIFICATION_PROGRAM_ERROR;
@@ -723,9 +723,9 @@ class VisualizerWidget extends PureComponent {
     'controller:state': (type, controllerState) => {
       // Grbl
       if (type === GRBL) {
-        const { status, parserstate } = { ...controllerState };
+        const { status, parserstate } = controllerState;
         const { mpos, wpos } = status;
-        const { modal = {} } = { ...parserstate };
+        const { modal = {} } = parserstate;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -765,7 +765,7 @@ class VisualizerWidget extends PureComponent {
 
       // Marlin
       if (type === MARLIN) {
-        const { pos, modal = {} } = { ...controllerState };
+        const { pos, modal = {} } = controllerState;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -804,9 +804,9 @@ class VisualizerWidget extends PureComponent {
 
       // Smoothie
       if (type === SMOOTHIE) {
-        const { status, parserstate } = { ...controllerState };
+        const { status, parserstate } = controllerState;
         const { mpos, wpos } = status;
-        const { modal = {} } = { ...parserstate };
+        const { modal = {} } = parserstate;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -845,8 +845,8 @@ class VisualizerWidget extends PureComponent {
 
       // TinyG
       if (type === TINYG) {
-        const { sr } = { ...controllerState };
-        const { mpos, wpos, modal = {} } = { ...sr };
+        const { sr } = controllerState;
+        const { mpos, wpos, modal = {} } = sr;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -1081,9 +1081,7 @@ class VisualizerWidget extends PureComponent {
       ...this.state,
       isAgitated: this.isAgitated(),
     };
-    const actions = {
-      ...this.actions,
-    };
+    const actions = this.actions;
     const showLoader = state.gcode.loading || state.gcode.rendering;
     const capable = {
       view3D: WebGL.isWebGLAvailable() && !state.disabled,

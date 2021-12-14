@@ -42,8 +42,8 @@ const getSanitizedRecords = () => {
 };
 
 const ensureMachineProfile = (payload) => {
-  const { id, name, limits } = { ...payload };
-  const { xmin = 0, xmax = 0, ymin = 0, ymax = 0, zmin = 0, zmax = 0 } = { ...limits };
+  const { id, name, limits } = payload;
+  const { xmin = 0, xmax = 0, ymin = 0, ymax = 0, zmin = 0, zmax = 0 } = limits;
 
   return {
     id,
@@ -85,7 +85,7 @@ export const fetch = (req, res) => {
 };
 
 export const create = (req, res) => {
-  const record = { ...req.body };
+  const record = req.body;
 
   if (!record.name) {
     res.status(ERR_BAD_REQUEST).send({

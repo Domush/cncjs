@@ -123,7 +123,7 @@ class SmoothieWidget extends PureComponent {
     },
     'serialport:close': (options) => {
       const initialState = this.getInitialState();
-      this.setState({ ...initialState });
+      this.setState(initialState);
     },
     'controller:settings': (type, controllerSettings) => {
       if (type === SMOOTHIE) {
@@ -211,8 +211,8 @@ class SmoothieWidget extends PureComponent {
   }
 
   canClick() {
-    const { port } = this.state;
-    const { type } = this.state.controller;
+    const { port, controller } = this.state;
+    const { type } = controller;
 
     if (!port) {
       return false;
@@ -232,9 +232,7 @@ class SmoothieWidget extends PureComponent {
       ...this.state,
       canClick: this.canClick(),
     };
-    const actions = {
-      ...this.actions,
-    };
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

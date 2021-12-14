@@ -8,9 +8,7 @@ import Settings from './Settings';
 import * as styles from './App.styl';
 
 class App extends PureComponent {
-  static propTypes = {
-    ...withRouter.propTypes,
-  };
+  static propTypes = withRouter.propTypes;
 
   render() {
     const { location } = this.props;

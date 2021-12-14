@@ -1,6 +1,5 @@
 // import both default and named
-import React from 'react';
-import { PureComponent } from 'react';
+import React, { PureComponent } from 'react';
 import * as styles from './toaster.styl.js';
 
 class ToastTimer extends PureComponent {

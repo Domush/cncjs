@@ -22,7 +22,7 @@ const defaultSettings = Object.freeze({
 
 const toIdent = (options) => {
   // Only the path option is required for generating the ident property
-  const { path } = { ...options };
+  const { path } = options;
   return JSON.stringify({ type: 'serial', path: path });
 };
 
@@ -55,7 +55,7 @@ class SerialConnection extends EventEmitter {
   constructor(options) {
     super();
 
-    const { writeFilter, ...rest } = { ...options };
+    const { writeFilter, ...rest } = options;
 
     if (writeFilter) {
       if (typeof writeFilter !== 'function') {
@@ -125,7 +125,7 @@ class SerialConnection extends EventEmitter {
   // @param {function} callback The error-first callback.
   open(callback) {
     if (this.port) {
-      const err = new Error(`Cannot open serial port "${this.settings.path}"`);
+      const err = Error(`Cannot open serial port "${this.settings.path}"`);
       callback(err);
       return;
     }
@@ -149,7 +149,7 @@ class SerialConnection extends EventEmitter {
   // @param {function} callback The error-first callback.
   close(callback) {
     if (!this.port) {
-      const err = new Error(`Cannot close serial port "${this.settings.path}"`);
+      const err = Error(`Cannot close serial port "${this.settings.path}"`);
       callback && callback(err);
       return;
     }

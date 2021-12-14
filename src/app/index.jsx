@@ -1,4 +1,3 @@
-/* eslint import/no-dynamic-require: 0 */
 import chainedFunction from 'chained-function';
 import moment from 'moment';
 import pubsub from 'pubsub-js';
@@ -31,6 +30,10 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Space from './components/Space';
 import './styles/vendor.styl';
 import './styles/app.styl';
+
+import { createCommons } from 'simport.mjs';
+
+const { require, __filename, __dirname } = createCommons(import.meta.url);
 
 const renderPage = () => {
   const container = document.createElement('div');
@@ -120,7 +123,7 @@ series([
       (event) => {
         // TODO: event.origin
 
-        const { token = '', action } = { ...event.data };
+        const { token = '', action } = event.data;
 
         // Token authentication
         if (token !== store.get('session.token')) {
@@ -128,7 +131,7 @@ series([
           return;
         }
 
-        const { type, payload } = { ...action };
+        const { type, payload } = action;
         if (type === 'connect') {
           pubsub.publish('message:connect', payload);
         } else if (type === 'resize') {

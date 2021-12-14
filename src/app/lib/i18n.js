@@ -20,7 +20,7 @@ const _ = (...args) => {
 
   const [value = '', options = {}] = args;
   const key = ((value, options) => {
-    const { context, count } = { ...options };
+    const { context, count } = options;
     const containsContext = context !== undefined && context !== null;
     const containsPlural = typeof count === 'number';
     if (containsContext) {

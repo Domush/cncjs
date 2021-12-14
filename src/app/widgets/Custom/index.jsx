@@ -79,7 +79,7 @@ class CustomWidget extends PureComponent {
     },
     'serialport:close': (options) => {
       const initialState = this.getInitialState();
-      this.setState({ ...initialState });
+      this.setState(initialState);
     },
     'workflow:state': (workflowState) => {
       this.setState((state) => ({
@@ -152,12 +152,8 @@ class CustomWidget extends PureComponent {
     const { minimized, isFullscreen, disabled, title } = this.state;
     const isForkedWidget = widgetId.match(/\w+:[\w\-]+/);
     const config = this.config;
-    const state = {
-      ...this.state,
-    };
-    const action = {
-      ...this.action,
-    };
+    const state = this.state;
+    const action = this.action;
     const buttonWidth = 30;
     const buttonCount = 5; // [Disabled] [Refresh] [Edit] [Toggle] [More]
 

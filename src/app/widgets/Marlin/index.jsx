@@ -112,7 +112,7 @@ class MarlinWidget extends PureComponent {
     },
     'serialport:close': (options) => {
       const initialState = this.getInitialState();
-      this.setState({ ...initialState });
+      this.setState(initialState);
     },
     'controller:settings': (type, controllerSettings) => {
       if (type === MARLIN) {
@@ -196,8 +196,8 @@ class MarlinWidget extends PureComponent {
   }
 
   canClick() {
-    const { port } = this.state;
-    const { type } = this.state.controller;
+    const { port, controller } = this.state;
+    const { type } = controller;
 
     if (!port) {
       return false;
@@ -217,9 +217,7 @@ class MarlinWidget extends PureComponent {
       ...this.state,
       canClick: this.canClick(),
     };
-    const actions = {
-      ...this.actions,
-    };
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

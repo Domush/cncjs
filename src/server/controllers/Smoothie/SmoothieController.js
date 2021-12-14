@@ -115,11 +115,11 @@ class SmoothieController {
 
   constructor(engine, options) {
     if (!engine) {
-      throw new Error('engine must be specified');
+      throw Error('engine must be specified');
     }
     this.engine = engine;
 
-    const { port, baudrate, rtscts } = { ...options };
+    const { port, baudrate, rtscts } = options;
     this.options = {
       ...this.options,
       port: port,
@@ -317,7 +317,7 @@ class SmoothieController {
       this.emit('workflow:state', this.workflow.state);
 
       if (args.length > 0) {
-        const reason = { ...args[0] };
+        const reason = args[0];
         this.sender.hold(reason); // Hold reason
       } else {
         this.sender.hold();
@@ -836,7 +836,7 @@ class SmoothieController {
     // Assertion check
     if (!this.connection) {
       const err = `Serial port "${port}" is not available`;
-      callback(new Error(err));
+      callback(Error(err));
       return;
     }
 
@@ -956,7 +956,7 @@ class SmoothieController {
         const dwell = '%wait ; Wait for the planner to empty';
         const ok = this.sender.load(name, gcode + '\n' + dwell, context);
         if (!ok) {
-          callback(new Error(`Invalid G-code: name=${name}`));
+          callback(Error(`Invalid G-code: name=${name}`));
           return;
         }
 

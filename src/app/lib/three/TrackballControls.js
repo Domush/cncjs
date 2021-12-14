@@ -367,7 +367,7 @@ const TrackballControls = function (object, domElement) {
   // listeners
 
   function keydown(event) {
-    if (_this.enabled === false) return;
+    if (!_this.enabled) return;
 
     window.removeEventListener('keydown', keydown);
 
@@ -385,7 +385,7 @@ const TrackballControls = function (object, domElement) {
   }
 
   function keyup(event) {
-    if (_this.enabled === false) return;
+    if (!_this.enabled) return;
 
     _state = _prevState;
 
@@ -393,7 +393,7 @@ const TrackballControls = function (object, domElement) {
   }
 
   function mousedown(event) {
-    if (_this.enabled === false) return;
+    if (!_this.enabled) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -421,7 +421,7 @@ const TrackballControls = function (object, domElement) {
   }
 
   function mousemove(event) {
-    if (_this.enabled === false) return;
+    if (!_this.enabled) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -437,7 +437,7 @@ const TrackballControls = function (object, domElement) {
   }
 
   function mouseup(event) {
-    if (_this.enabled === false) return;
+    if (!_this.enabled) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -450,7 +450,7 @@ const TrackballControls = function (object, domElement) {
   }
 
   function mousewheel(event) {
-    if (_this.enabled === false) return;
+    if (!_this.enabled) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -477,7 +477,7 @@ const TrackballControls = function (object, domElement) {
   }
 
   function touchstart(event) {
-    if (_this.enabled === false) return;
+    if (!_this.enabled) return;
 
     event.preventDefault();
 
@@ -506,7 +506,7 @@ const TrackballControls = function (object, domElement) {
   }
 
   function touchmove(event) {
-    if (_this.enabled === false) return;
+    if (!_this.enabled) return;
 
     event.preventDefault();
     event.stopPropagation();
@@ -531,7 +531,7 @@ const TrackballControls = function (object, domElement) {
   }
 
   function touchend(event) {
-    if (_this.enabled === false) return;
+    if (!_this.enabled) return;
 
     switch (event.touches.length) {
       case 0:

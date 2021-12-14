@@ -1,20 +1,25 @@
-const crypto = require('crypto');
-const path = require('path');
-const { boolean } = require('boolean');
-const dotenv = require('dotenv');
-const CSSSplitWebpackPlugin = require('css-split-webpack-plugin').default;
-const findImports = require('find-imports');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const without = require('lodash/without');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+import crypto from 'crypto';
+import path from 'path';
+import { boolean } from 'boolean';
+import dotenv from 'dotenv';
+import _CSSSplitWebpackPlugin from 'css-split-webpack-plugin';
+import { createCommons } from 'simport';
+
+const { __filename, __dirname, require } = createCommons(import.meta.url);
+
+const CSSSplitWebpackPlugin = _CSSSplitWebpackPlugin.default;
+import findImports from 'find-imports';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import without from 'lodash/without.js';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 // const nib = require('nib');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 // const stylusLoader = require('stylus-loader');
-const TerserPlugin = require('terser-webpack-plugin');
-const webpack = require('webpack');
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-const babelConfig = require('./babel.config');
-const buildConfig = require('./build.config');
+import TerserPlugin from 'terser-webpack-plugin';
+import webpack from 'webpack';
+import { WebpackManifestPlugin } from 'webpack-manifest-plugin';
+import babelConfig from './babel.config.cjs';
+import * as buildConfig from './build.config.js';
 const pkg = require('./src/package.json');
 
 dotenv.config({
@@ -35,7 +40,7 @@ const publicPath = ((payload) => {
 const buildVersion = pkg.version;
 const timestamp = new Date().getTime();
 
-module.exports = {
+export default {
   mode: 'production',
   cache: true,
   target: 'web',

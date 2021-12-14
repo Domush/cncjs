@@ -29,9 +29,7 @@ const newUpdateAvailableTooltip = () => {
 };
 
 class Header extends PureComponent {
-  static propTypes = {
-    ...withRouter.propTypes,
-  };
+  static propTypes = withRouter.propTypes;
 
   state = this.getInitialState();
 
@@ -114,7 +112,7 @@ class Header extends PureComponent {
       });
     },
     'task:finish': (taskId, code) => {
-      const err = code !== 0 ? new Error(`errno=${code}`) : null;
+      const err = code !== 0 ? Error(`errno=${code}`) : null;
       let cmd = null;
 
       this.setState({

@@ -1,6 +1,10 @@
 import path from 'path';
 import pkg from '../../package.json';
 
+import { createCommons } from 'simport';
+
+const { __filename, __dirname, require } = createCommons(import.meta.url);
+
 const RC_FILE = '.cncrc';
 const SESSION_PATH = '.cncjs-sessions';
 

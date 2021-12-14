@@ -130,12 +130,8 @@ class WebcamWidget extends PureComponent {
     const { widgetId } = this.props;
     const { disabled, minimized, isFullscreen } = this.state;
     const isForkedWidget = widgetId.match(/\w+:[\w\-]+/);
-    const state = {
-      ...this.state,
-    };
-    const actions = {
-      ...this.actions,
-    };
+    const state = this.state;
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

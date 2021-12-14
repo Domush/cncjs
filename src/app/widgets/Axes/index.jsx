@@ -437,9 +437,9 @@ class AxesWidget extends PureComponent {
     'controller:state': (type, controllerState) => {
       // Grbl
       if (type === GRBL) {
-        const { status, parserstate } = { ...controllerState };
+        const { status, parserstate } = controllerState;
         const { mpos, wpos } = status;
-        const { modal = {} } = { ...parserstate };
+        const { modal = {} } = parserstate;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -479,7 +479,7 @@ class AxesWidget extends PureComponent {
 
       // Marlin
       if (type === MARLIN) {
-        const { pos, modal = {} } = { ...controllerState };
+        const { pos, modal = {} } = controllerState;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -508,9 +508,9 @@ class AxesWidget extends PureComponent {
 
       // Smoothie
       if (type === SMOOTHIE) {
-        const { status, parserstate } = { ...controllerState };
+        const { status, parserstate } = controllerState;
         const { mpos, wpos } = status;
-        const { modal = {} } = { ...parserstate };
+        const { modal = {} } = parserstate;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -549,8 +549,8 @@ class AxesWidget extends PureComponent {
 
       // TinyG
       if (type === TINYG) {
-        const { sr } = { ...controllerState };
-        const { mpos, wpos, modal = {} } = { ...sr };
+        const { sr } = controllerState;
+        const { mpos, wpos, modal = {} } = sr;
         const units =
           {
             G20: IMPERIAL_UNITS,
@@ -777,8 +777,7 @@ class AxesWidget extends PureComponent {
 
   render() {
     const { widgetId } = this.props;
-    const { minimized, isFullscreen } = this.state;
-    const { units, machinePosition, workPosition } = this.state;
+    const { minimized, isFullscreen, units, machinePosition, workPosition } = this.state;
     const isForkedWidget = widgetId.match(/\w+:[\w\-]+/);
     const config = this.config;
     const state = {
@@ -794,9 +793,7 @@ class AxesWidget extends PureComponent {
         return String(mapPositionToUnits(pos, units));
       }),
     };
-    const actions = {
-      ...this.actions,
-    };
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

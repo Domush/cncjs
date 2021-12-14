@@ -129,7 +129,7 @@ class LaserWidget extends PureComponent {
     },
     'serialport:close': (options) => {
       const initialState = this.getInitialState();
-      this.setState({ ...initialState });
+      this.setState(initialState);
     },
     'controller:settings': (type, controllerSettings) => {
       this.setState((state) => ({
@@ -238,9 +238,7 @@ class LaserWidget extends PureComponent {
       ...this.state,
       canClick: this.canClick(),
     };
-    const actions = {
-      ...this.actions,
-    };
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

@@ -152,11 +152,11 @@ class TinyGController {
 
   constructor(engine, options) {
     if (!engine) {
-      throw new Error('engine must be specified');
+      throw Error('engine must be specified');
     }
     this.engine = engine;
 
-    const { port, baudrate, rtscts } = { ...options };
+    const { port, baudrate, rtscts } = options;
     this.options = {
       ...this.options,
       port: port,
@@ -365,7 +365,7 @@ class TinyGController {
       this.emit('workflow:state', this.workflow.state);
 
       if (args.length > 0) {
-        const reason = { ...args[0] };
+        const reason = args[0];
         this.sender.hold(reason); // Hold reason
       } else {
         this.sender.hold();
@@ -518,7 +518,7 @@ class TinyGController {
 
       // Feeder
       if (this.feeder.state.hold) {
-        const { data } = { ...this.feeder.state.holdReason };
+        const { data } = this.feeder.state.holdReason;
         if (data === WAIT && qr >= this.runner.plannerBufferPoolSize) {
           this.feeder.unhold();
         }
@@ -940,7 +940,7 @@ class TinyGController {
     // Assertion check
     if (!this.connection) {
       const err = `Serial port "${port}" is not available`;
-      callback(new Error(err));
+      callback(Error(err));
       return;
     }
 
@@ -1067,7 +1067,7 @@ class TinyGController {
         const dwell = '%wait ; Wait for the planner to empty';
         const ok = this.sender.load(name, gcode + '\n' + dwell, context);
         if (!ok) {
-          callback(new Error(`Invalid G-code: name=${name}`));
+          callback(Error(`Invalid G-code: name=${name}`));
           return;
         }
 
@@ -1118,7 +1118,7 @@ class TinyGController {
         this.workflow.stop();
 
         const [options] = args;
-        const { force = false } = { ...options };
+        const { force = false } = options;
         if (force) {
           const firmwareBuild = ensureNumber(_.get(this.settings, 'fb'));
 

@@ -99,10 +99,10 @@ class ConsoleWidget extends PureComponent {
       this.actions.clearAll();
 
       const initialState = this.getInitialState();
-      this.setState({ ...initialState });
+      this.setState(initialState);
     },
     'serialport:write': (data, context) => {
-      const { source, __sender__ } = { ...context };
+      const { source, __sender__ } = context;
 
       if (__sender__ === this.senderId) {
         // Do not write to the terminal console if the sender is the widget itself
@@ -205,12 +205,8 @@ class ConsoleWidget extends PureComponent {
     const { widgetId } = this.props;
     const { minimized, isFullscreen } = this.state;
     const isForkedWidget = widgetId.match(/\w+:[\w\-]+/);
-    const state = {
-      ...this.state,
-    };
-    const actions = {
-      ...this.actions,
-    };
+    const state = this.state;
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

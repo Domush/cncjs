@@ -36,9 +36,7 @@ const stopWaiting = () => {
 };
 
 class Workspace extends PureComponent {
-  static propTypes = {
-    ...withRouter.propTypes,
-  };
+  static propTypes = withRouter.propTypes;
 
   state = {
     mounted: false,
@@ -135,7 +133,7 @@ class Workspace extends PureComponent {
     },
     'feeder:status': (status) => {
       const { modal } = this.state;
-      const { hold, holdReason } = { ...status };
+      const { hold, holdReason } = status;
 
       if (!hold) {
         if (_.includes([MODAL_FEEDER_PAUSED, MODAL_FEEDER_WAIT], modal.name)) {
@@ -144,7 +142,7 @@ class Workspace extends PureComponent {
         return;
       }
 
-      const { err, data, message } = { ...holdReason };
+      const { err, data, message } = holdReason;
 
       if (err) {
         this.action.openModal(MODAL_FEEDER_PAUSED, {
@@ -285,7 +283,7 @@ class Workspace extends PureComponent {
       api
         .loadGCode({ port, name, gcode })
         .then((res) => {
-          const { name = '', gcode = '' } = { ...res.body };
+          const { name = '', gcode = '' } = res.body;
           pubsub.publish('gcode:load', { name, gcode });
         })
         .catch((res) => {

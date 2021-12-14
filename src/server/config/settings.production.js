@@ -4,6 +4,10 @@ import path from 'path';
 import pkg from '../../package.json';
 import urljoin from '../lib/urljoin';
 
+import { createCommons } from 'simport';
+
+const { __filename, __dirname, require } = createCommons(import.meta.url);
+
 const publicPath = ((payload) => {
   const algorithm = 'sha1';
   const buf = String(payload);

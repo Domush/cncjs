@@ -36,6 +36,10 @@ import config from './services/configstore';
 import { authorizeIPAddress, validateUser } from './access-control';
 import { ERR_FORBIDDEN } from './constants';
 
+import { createCommons } from 'simport';
+
+const { __filename, __dirname, require } = createCommons(import.meta.url);
+
 const log = logger('app');
 
 const renderPage =
@@ -45,7 +49,7 @@ const renderPage =
     // http://stackoverflow.com/questions/6156639/x-ua-compatible-is-set-to-ie-edge-but-it-still-doesnt-stop-compatibility-mode
     res.set({ 'X-UA-Compatible': 'IE=edge' });
 
-    const locals = { ...cb(req, res) };
+    const locals = cb(req, res);
     res.render(view, locals);
   };
 

@@ -55,14 +55,14 @@ export const fetch = (req, res) => {
         totalRecords: Number(totalRecords),
       },
       records: pagedRecords.map((record) => {
-        const { id, mtime, name, content } = { ...record };
+        const { id, mtime, name, content } = record;
         return { id, mtime, name, content };
       }),
     });
   } else {
     res.send({
       records: records.map((record) => {
-        const { id, mtime, name, content } = { ...record };
+        const { id, mtime, name, content } = record;
         return { id, mtime, name, content };
       }),
     });
@@ -70,7 +70,7 @@ export const fetch = (req, res) => {
 };
 
 export const create = (req, res) => {
-  const { name, content } = { ...req.body };
+  const { name, content } = req.body;
 
   if (!name) {
     res.status(ERR_BAD_REQUEST).send({
@@ -118,7 +118,7 @@ export const read = (req, res) => {
     return;
   }
 
-  const { mtime, name, content } = { ...record };
+  const { mtime, name, content } = record;
   res.send({ id, mtime, name, content });
 };
 
@@ -134,7 +134,7 @@ export const update = (req, res) => {
     return;
   }
 
-  const { name = record.name, content = record.content } = { ...req.body };
+  const { name = record.name, content = record.content } = req.body;
 
   /*
     if (!name) {

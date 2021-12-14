@@ -5,6 +5,10 @@ import isElectron from 'is-electron';
 import program from 'commander';
 import pkg from './package.json';
 
+import { createCommons } from 'simport';
+
+const { __filename, __dirname, require } = createCommons(import.meta.url);
+
 // Defaults to 'production'
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 

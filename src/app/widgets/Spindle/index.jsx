@@ -77,7 +77,7 @@ class SpindleWidget extends PureComponent {
     },
     'serialport:close': (options) => {
       const initialState = this.getInitialState();
-      this.setState({ ...initialState });
+      this.setState(initialState);
     },
     'workflow:state': (workflowState) => {
       this.setState((state) => ({
@@ -89,8 +89,8 @@ class SpindleWidget extends PureComponent {
     'controller:state': (type, state) => {
       // Grbl
       if (type === GRBL) {
-        const { parserstate } = { ...state };
-        const { modal = {} } = { ...parserstate };
+        const { parserstate } = state;
+        const { modal = {} } = parserstate;
 
         this.setState({
           controller: {
@@ -106,7 +106,7 @@ class SpindleWidget extends PureComponent {
 
       // Marlin
       if (type === MARLIN) {
-        const { modal = {} } = { ...state };
+        const { modal = {} } = state;
 
         this.setState({
           controller: {
@@ -122,8 +122,8 @@ class SpindleWidget extends PureComponent {
 
       // Smoothie
       if (type === SMOOTHIE) {
-        const { parserstate } = { ...state };
-        const { modal = {} } = { ...parserstate };
+        const { parserstate } = state;
+        const { modal = {} } = parserstate;
 
         this.setState({
           controller: {
@@ -139,8 +139,8 @@ class SpindleWidget extends PureComponent {
 
       // TinyG
       if (type === TINYG) {
-        const { sr } = { ...state };
-        const { modal = {} } = { ...sr };
+        const { sr } = state;
+        const { modal = {} } = sr;
 
         this.setState({
           controller: {
@@ -261,9 +261,7 @@ class SpindleWidget extends PureComponent {
       ...this.state,
       canClick: this.canClick(),
     };
-    const actions = {
-      ...this.actions,
-    };
+    const actions = this.actions;
 
     return (
       <Widget fullscreen={isFullscreen}>

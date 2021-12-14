@@ -43,7 +43,7 @@ const getConfig = () => {
 };
 
 const persist = (data) => {
-  const { version, state } = { ...data };
+  const { version, state } = data;
 
   data = {
     version: version || settings.version,

@@ -389,15 +389,9 @@ class TinyGRunner extends events.EventEmitter {
         };
         const sr = {
           ...this.state.sr,
-          modal: {
-            ...this.state.sr.modal,
-          },
-          wpos: {
-            ...this.state.sr.wpos,
-          },
-          mpos: {
-            ...this.state.sr.mpos,
-          },
+          modal: this.state.sr.modal,
+          wpos: this.state.sr.wpos,
+          mpos: this.state.sr.mpos,
         };
         _.each(keymaps, (target, key) => {
           if (typeof target === 'string') {

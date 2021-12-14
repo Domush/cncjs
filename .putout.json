@@ -75,5 +75,5 @@
     "webpack/convert-node-to-resolve-fallback": "off",
     "webpack/convert-query-loader-to-use": "on"
   },
-  "ignore": ["package.json", "node_modules", "package-lock.json", ".*", "*.cjs", "*.json", "*.config.*js"]
+  "ignore": ["package.json", "node_modules", "package-lock.json", ".*", "*.cjs", "*.json"]
 }

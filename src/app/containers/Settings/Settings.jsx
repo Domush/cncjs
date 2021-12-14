@@ -31,9 +31,7 @@ const mapSectionPathToId = (path = '') => {
 };
 
 class Settings extends PureComponent {
-  static propTypes = {
-    ...withRouter.propTypes,
-  };
+  static propTypes = withRouter.propTypes;
 
   sections = [
     {
@@ -108,7 +106,7 @@ class Settings extends PureComponent {
         api
           .getState()
           .then((res) => {
-            const { checkForUpdates } = { ...res.body };
+            const { checkForUpdates } = res.body;
 
             const nextState = {
               ...this.state.general,
@@ -363,7 +361,7 @@ class Settings extends PureComponent {
     machineProfiles: {
       fetchRecords: (options) => {
         const state = this.state.machineProfiles;
-        const { page = state.pagination.page, pageLength = state.pagination.pageLength } = { ...options };
+        const { page = state.pagination.page, pageLength = state.pagination.pageLength } = options;
 
         this.setState({
           machineProfiles: {
@@ -572,7 +570,7 @@ class Settings extends PureComponent {
     userAccounts: {
       fetchRecords: (options) => {
         const state = this.state.userAccounts;
-        const { page = state.pagination.page, pageLength = state.pagination.pageLength } = { ...options };
+        const { page = state.pagination.page, pageLength = state.pagination.pageLength } = options;
 
         this.setState({
           userAccounts: {
@@ -734,7 +732,7 @@ class Settings extends PureComponent {
     commands: {
       fetchRecords: (options) => {
         const state = this.state.commands;
-        const { page = state.pagination.page, pageLength = state.pagination.pageLength } = { ...options };
+        const { page = state.pagination.page, pageLength = state.pagination.pageLength } = options;
 
         this.setState({
           commands: {
@@ -895,7 +893,7 @@ class Settings extends PureComponent {
     events: {
       fetchRecords: (options) => {
         const state = this.state.events;
-        const { page = state.pagination.page, pageLength = state.pagination.pageLength } = { ...options };
+        const { page = state.pagination.page, pageLength = state.pagination.pageLength } = options;
 
         this.setState({
           events: {
@@ -1212,12 +1210,8 @@ class Settings extends PureComponent {
   }
 
   render() {
-    const state = {
-      ...this.state,
-    };
-    const actions = {
-      ...this.actions,
-    };
+    const state = this.state;
+    const actions = this.actions;
     const { pathname = '' } = this.props.location;
     const initialSectionPath = this.sections[0].path;
     const sectionPath = pathname.replace(/^\/settings(\/)?/, ''); // TODO

@@ -35,7 +35,7 @@ class AddMacro extends PureComponent {
 
   render() {
     const { state, actions } = this.props;
-    const { content = '' } = { ...state.modal.params };
+    const { content = '' } = state.modal.params;
 
     return (
       <Modal disableOverlay size="md" onClose={actions.closeModal}>

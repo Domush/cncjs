@@ -106,7 +106,7 @@ class CNCEngine {
     }
 
     if (Object.keys(this.controllerClass).length === 0) {
-      throw new Error(`No valid CNC controller specified (${controller})`);
+      throw Error(`No valid CNC controller specified (${controller})`);
     }
 
     const loadedControllers = Object.keys(this.controllerClass);
@@ -252,7 +252,7 @@ class CNCEngine {
           if (!Controller) {
             const err = `Not supported controller: ${controllerType}`;
             log.error(err);
-            callback(new Error(err));
+            callback(Error(err));
             return;
           }
 
@@ -307,7 +307,7 @@ class CNCEngine {
         if (!controller) {
           const err = `Serial port "${port}" not accessible`;
           log.error(err);
-          callback(new Error(err));
+          callback(Error(err));
           return;
         }
 

@@ -58,7 +58,7 @@ class Custom extends PureComponent {
         });
       }),
       pubsub.subscribe('message:resize', (type, payload) => {
-        const { scrollHeight } = { ...payload };
+        const { scrollHeight } = payload;
         this.resize({ height: scrollHeight });
       }),
     ];
@@ -80,9 +80,7 @@ class Custom extends PureComponent {
       version: settings.version,
       action: {
         type: type,
-        payload: {
-          ...payload,
-        },
+        payload: payload,
       },
     };
 
@@ -112,7 +110,7 @@ class Custom extends PureComponent {
       return;
     }
 
-    let { width = 0, height = 0 } = { ...options };
+    let { width = 0, height = 0 } = options;
     width = Number(width) || 0;
     height = Number(height) || 0;
 
