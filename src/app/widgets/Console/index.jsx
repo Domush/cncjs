@@ -210,7 +210,7 @@ class ConsoleWidget extends PureComponent {
                             <Space width="8" />
                         </Widget.Sortable>
                         {isForkedWidget &&
-                        <i className="fa fa-code-fork" style={{ marginRight: 5 }} />
+                            <i className="fa fa-code-fork" style={{ marginRight: 5 }} />
                         }
                         {i18n._('Console')}
                     </Widget.Title>
@@ -295,7 +295,7 @@ class ConsoleWidget extends PureComponent {
                         { [styles.hidden]: minimized },
                         { [styles.fullscreen]: isFullscreen }
                     )}
-                    style={{ width: '100%'; padding-bottom: 10px }}
+                    style={{ width: '100%', padding: '10px' }}
                 >
                     <Console
                         ref={node => {
