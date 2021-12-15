@@ -325,6 +325,7 @@
     "optimize-css-assets-webpack-plugin": "~5.0.1",
     "pre-push": "~0.1.1",
     "progress": "~2.0.3",
+    "putout": "^22.8.1",
     "react-hot-loader": "~4.8.4",
     "redux-devtools": "~3.5.0",
     "run-sequence": "~2.2.1",

@@ -29,8 +29,7 @@ import MarlinRunner from './MarlinRunner';
 import interpret from './interpret';
 import {
     MARLIN,
-    QUERY_TYPE_POSITION,
-    QUERY_TYPE_TEMPERATURE
+    QUERY_TYPE_POSITION
 } from './constants';
 
 // % commands
@@ -141,11 +140,6 @@ class MarlinController {
                     source: WRITE_SOURCE_SERVER
                 });
                 this.query.lastQueryTime = now;
-            } else if (this.query.type === QUERY_TYPE_TEMPERATURE) {
-                this.connection.write('M105\n', {
-                    source: WRITE_SOURCE_SERVER
-                });
-                this.query.lastQueryTime = now;
             } else {
                 log.error('Unsupported query type:', this.query.type);
             }
@@ -160,7 +154,7 @@ class MarlinController {
 
         return _.throttle(() => {
             // Check the ready flag
-            if (!(this.ready)) {
+            if (!this.ready) {
                 return;
             }
 
@@ -182,37 +176,9 @@ class MarlinController {
         }, 500);
     })();
 
-    // Request a temperature report to be sent to the host at some point in the future.
-    queryTemperature = (() => {
-        let lastQueryTime = 0;
-
-        return _.throttle(() => {
-            // Check the ready flag
-            if (!(this.ready)) {
-                return;
-            }
-
-            const now = new Date().getTime();
-
-            if (!this.query.type) {
-                this.query.type = QUERY_TYPE_TEMPERATURE;
-                lastQueryTime = now;
-            } else if (lastQueryTime > 0) {
-                const timespan = Math.abs(now - lastQueryTime);
-                const toleranceTime = 10000; // 10 seconds
-
-                if (timespan >= toleranceTime) {
-                    log.silly(`Reschedule temperture report query: now=${now}ms, timespan=${timespan}ms`);
-                    this.query.type = QUERY_TYPE_TEMPERATURE;
-                    lastQueryTime = now;
-                }
-            }
-        }, 1000);
-    })();
-
     constructor(engine, options) {
         if (!engine) {
-            throw new Error('engine must be specified');
+            throw Error('engine must be specified');
         }
         this.engine = engine;
 
@@ -346,7 +312,13 @@ class MarlinController {
         this.feeder = new Feeder({
             dataFilter: (line, context) => {
                 // Remove comments that start with a semicolon `;`
-                line = line.replace(/\s*;.*/g, '').trim();
+                // Save the comment in case it is useful to show to the user as part of a pause modal.
+                const commentStart = line.indexOf(';');
+                let comment = '';
+                if (commentStart >= 0) {
+                    comment = line.slice(commentStart + 1).trim();
+                    line = line.slice(0, commentStart).trim();
+                }
                 context = this.populateContext(context);
 
                 if (line[0] === '%') {
@@ -370,30 +342,16 @@ class MarlinController {
                 const data = parser.parseLine(line, { flatten: true });
                 const words = ensureArray(data.words);
 
-                // M109 Set extruder temperature and wait for the target temperature to be reached
-                if (_.includes(words, 'M109')) {
-                    log.debug(`Wait for extruder temperature to reach target temperature (${line})`);
-                    this.feeder.hold({ data: 'M109' }); // Hold reason
-                }
-
-                // M190 Set heated bed temperature and wait for the target temperature to be reached
-                if (_.includes(words, 'M190')) {
-                    log.debug(`Wait for heated bed temperature to reach target temperature (${line})`);
-                    this.feeder.hold({ data: 'M190' }); // Hold reason
-                }
-
                 { // Program Mode: M0, M1
                     const programMode = _.intersection(words, ['M0', 'M1'])[0];
                     if (programMode === 'M0') {
-                        log.debug(`M0 Program Pause: line=${sent + 1}, sent=${sent}, received=${received}`);
+                        log.debug(`M0 Program Pause: line=${line}`);
                         // Workaround for Carbide files - prevent M0 early from pausing program
-                        if (sent > 10) {
-                            this.workflow.pause({ data: 'M0' });
-                            this.emit('workflow:pause', { data: 'M0' });
-                        }
+                        this.workflow.pause({ data: 'M0' });
+                        this.emit('workflow:pause', { data: 'M0' });
                         return line.replace('M0', '(M0)');
                     } else if (programMode === 'M1') {
-                        log.debug(`M1 Program Pause: line=${sent + 1}, sent=${sent}, received=${received}`);
+                        log.debug(`M1 Program Pause: line=${line}`);
                         this.workflow.pause({ data: 'M1' });
                         this.emit('workflow:pause', { data: 'M1' });
                         return line.replace('M1', '(M1)');
