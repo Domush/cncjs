@@ -7,6 +7,10 @@ import React, { PureComponent } from 'react';
 import ReactDOM from 'react-dom';
 import { Terminal } from 'xterm';
 import * as fit from 'xterm/lib/addons/fit/fit';
+import { debounce } from 'lodash';
+import store from 'app/store';
+import controller from 'app/lib/controller';
+import Button from 'app/components/FunctionButton/FunctionButton';
 import log from 'app/lib/log';
 import History from './History';
 import styles from './index.styl';
@@ -20,19 +24,25 @@ class TerminalWrapper extends PureComponent {
         cursorBlink: PropTypes.bool,
         scrollback: PropTypes.number,
         tabStopWidth: PropTypes.number,
-        onData: PropTypes.func
+    onData: PropTypes.func,
+    active: PropTypes.bool,
     };
 
     static defaultProps = {
         cols: 'auto',
         rows: 'auto',
-        cursorBlink: true,
+    cursorBlink: false,
         scrollback: 1000,
         tabStopWidth: 4,
         onData: () => {}
+  };
+
+  state = {
+    terminalInputHistory: store.get('workspace.terminal.inputHistory', []),
+    terminalInputIndex: store.get('workspace.terminal.inputHistory')?.length,
     };
 
-    prompt = '> ';
+  prompt = ' ';
 
     history = new History(1000);
 
@@ -42,205 +52,25 @@ class TerminalWrapper extends PureComponent {
 
     term = null;
 
+  debounce = debounce;
+
+  inputRef = React.createRef();
+
     eventHandler = {
-        onResize: () => {
-            const { rows, cols } = this.term;
-            log.debug(`Resizing the terminal to ${rows} rows and ${cols} cols`);
-
-            if (this.verticalScrollbar) {
-                this.verticalScrollbar.update();
-            }
-        },
-        onKey: (() => {
-            let historyCommand = '';
-
-            return (key, event) => {
-                const { onData } = this.props;
+    onKey: (() => async (event) => {
                 const term = this.term;
-                const line = term.buffer.lines.get(term.buffer.ybase + term.buffer.y);
-                const nonPrintableKey = (event.altKey || event.altGraphKey || event.ctrlKey || event.metaKey);
+      const line = term.getSelection();
 
                 if (!line) {
                     return;
                 }
 
-                // Home
-                if (event.key === 'Home' || (event.metaKey && event.key === 'ArrowLeft')) {
-                    term.buffer.x = this.prompt.length;
-                    return;
-                }
-
-                // End
-                if (event.key === 'End' || (event.metaKey && event.key === 'ArrowRight')) {
-                    let x = line.length - 1;
-                    for (; x > this.prompt.length; --x) {
-                        const c = line[x][1].trim();
-                        if (c) {
-                            break;
-                        }
-                    }
-
-                    if ((x + 1) < (line.length - 1)) {
-                        term.buffer.x = (x + 1);
-                    }
-
-                    return;
-                }
-
-                // Enter
-                if (event.key === 'Enter') {
-                    let buffer = '';
-                    for (let x = this.prompt.length; x < line.length; ++x) {
-                        const c = line[x][1] || '';
-                        buffer += c;
-                    }
-                    buffer = trimEnd(buffer);
-
-                    if (buffer.length > 0) {
-                        // Clear history command
-                        historyCommand = '';
-
-                        // Reset the index to the last position of the history array
-                        this.history.resetIndex();
-
-                        // Push the buffer to the history list, not including the [Enter] key
-                        this.history.push(buffer);
-                    }
-
-                    buffer += key;
-
-                    log.debug('xterm>', buffer);
-
-                    onData(buffer);
-                    term.prompt();
-                    return;
-                }
-
-                // Backspace
-                if (event.key === 'Backspace') {
-                    // Do not delete the prompt
-                    if (term.buffer.x <= this.prompt.length) {
-                        return;
-                    }
-
-                    for (let x = term.buffer.x; x < line.length; ++x) {
-                        line[x - 1] = line[x];
-                    }
-                    line[line.length - 1] = [term.eraseAttr(), ' ', 1];
-                    term.updateRange(term.buffer.y);
-                    term.refresh(term.buffer.y, term.buffer.y);
-                    term.write('\b');
-
-                    return;
-                }
-
-                // Delete
-                if (event.key === 'Delete') {
-                    for (let x = term.buffer.x + 1; x < line.length; ++x) {
-                        line[x - 1] = line[x];
-                    }
-                    line[line.length - 1] = [term.eraseAttr(), ' ', 1, 32];
-                    term.updateRange(term.buffer.y);
-                    term.refresh(term.buffer.y, term.buffer.y);
-
-                    return;
-                }
-
-                // Escape
-                if (event.key === 'Escape') {
-                    term.eraseLine(term.buffer.y);
-                    term.buffer.x = 0;
-                    term.write(color.white(this.prompt));
-                    return;
-                }
-
-                // ArrowLeft
-                if (event.key === 'ArrowLeft') {
-                    if (term.buffer.x <= this.prompt.length) {
-                        return;
-                    }
-                    term.buffer.x--;
-                    return;
-                }
-
-                // ArrowRight
-                if (event.key === 'ArrowRight') {
-                    let x = line.length - 1;
-                    for (; x > 0; --x) {
-                        const c = line[x][1].trim();
-                        if (c) {
-                            break;
-                        }
-                    }
-                    if (term.buffer.x <= x) {
-                        term.buffer.x++;
-                    }
-
-                    return;
-                }
-
-                // ArrowUp
-                if (event.key === 'ArrowUp') {
-                    if (!historyCommand) {
-                        historyCommand = this.history.current() || '';
-                    } else if (this.history.index > 0) {
-                        historyCommand = this.history.back() || '';
-                    }
-                    term.eraseLine(term.buffer.y);
-                    term.buffer.x = 0;
-                    term.write(color.white(this.prompt));
-                    term.write(color.white(historyCommand));
-                    return;
-                }
-
-                // ArrowDown
-                if (event.key === 'ArrowDown') {
-                    historyCommand = this.history.forward() || '';
-                    term.eraseLine(term.buffer.y);
-                    term.buffer.x = 0;
-                    term.write(color.white(this.prompt));
-                    term.write(color.white(historyCommand));
-                    return;
-                }
-
-                // PageUp
-                if (event.key === 'PageUp') {
-                    // Unsupported
-                    return;
-                }
-
-                // PageDown
-                if (event.key === 'PageDown') {
-                    // Unsupported
-                    return;
-                }
-
-                // Non-printable keys (e.g. ctrl-x)
-                if (nonPrintableKey) {
-                    onData(key);
-                    return;
-                }
-
-                // Make sure the cursor position will not exceed the number of columns
-                if (term.buffer.x < term.cols) {
-                    let x = line.length - 1;
-                    for (; x > term.buffer.x; --x) {
-                        line[x] = line[x - 1];
-                    }
-                    term.write(color.white(key));
-                }
-            };
+      // Ctrl-C copy - ctrl + c on windows/linux, meta-c on mac
+      if ((event.ctrlKey || event.metaKey) && event.code === 'KeyC') {
+        await navigator.clipboard.writeText(line);
+        return;
+      }
         })(),
-        onPaste: (data, event) => {
-            const { onData } = this.props;
-            const lines = String(data).replace(/(\r\n|\r|\n)/g, '\n').split('\n');
-            for (let i = 0; i < lines.length; ++i) {
-                const line = lines[i];
-                onData(line);
-                this.term.write(color.white(line));
-                this.term.prompt();
-            }
-        }
     };
 
     componentDidMount() {
@@ -252,18 +82,20 @@ class TerminalWrapper extends PureComponent {
         });
         this.term.prompt = () => {
             this.term.write('\r\n');
-            this.term.write(color.white(this.prompt));
+//            this.term.write(color.white(this.prompt));
         };
-        this.term.on('resize', this.eventHandler.onResize);
-        this.term.on('key', this.eventHandler.onKey);
-        this.term.on('paste', this.eventHandler.onPaste);
 
         const el = ReactDOM.findDOMNode(this.terminalContainer);
         this.term.open(el);
-        this.term.fit();
         this.term.focus(false);
 
-        this.term.setOption('fontFamily', 'Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif');
+    this.term.setOption(
+      'fontFamily',
+      'Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif'
+    );
+    this.term.setOption('fontSize', 14);
+
+    this.term.attachCustomKeyEventHandler(this.eventHandler.onKey);
 
         const xtermElement = el.querySelector('.xterm');
         xtermElement.style.paddingLeft = '3px';
@@ -271,7 +103,35 @@ class TerminalWrapper extends PureComponent {
         const viewportElement = el.querySelector('.xterm-viewport');
         this.verticalScrollbar = new PerfectScrollbar(viewportElement);
 
-        this.resize();
+    window.addEventListener(
+      'resize',
+      this.debounce(() => {
+        if (this.props.active) {
+          this.refitTerminal();
+        }
+      }, 150)
+    );
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (this.props.active) {
+      setTimeout(() => {
+        this.refitTerminal();
+      }, 150);
+    }
+
+    if (this.state.terminalInputIndex !== prevState.terminalInputIndex) {
+      const { terminalInputHistory } = this.state;
+
+      if (terminalInputHistory.length === 0) {
+        return;
+      }
+
+      // const inputSize = [...terminalInputHistory[this.state.terminalInputIndex] || ''].length;
+
+      this.inputRef.current.focus();
+      this.inputRef.current.value = terminalInputHistory[this.state.terminalInputIndex] || '';
+    }
     }
 
     componentWillUnmount() {
@@ -280,30 +140,11 @@ class TerminalWrapper extends PureComponent {
             this.verticalScrollbar = null;
         }
         if (this.term) {
-            this.term.off('resize', this.eventHandler.onResize);
-            this.term.off('key', this.eventHandler.onKey);
-            this.term.off('paste', this.eventHandler.onPaste);
+      this.term.onKey(null);
             this.term = null;
         }
-    }
+            window.removeEventListener('resize', this.debounce);
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.cursorBlink !== this.props.cursorBlink) {
-            this.term.setOption('cursorBlink', nextProps.cursorBlink);
-        }
-        if (nextProps.scrollback !== this.props.scrollback) {
-            this.term.setOption('scrollback', nextProps.scrollback);
-        }
-        if (nextProps.tabStopWidth !== this.props.tabStopWidth) {
-            this.term.setOption('tabStopWidth', nextProps.tabStopWidth);
-        }
-    }
-
-    componentDidUpdate(prevProps) {
-        if (this.props.cols !== prevProps.cols || this.props.rows !== prevProps.rows) {
-            const { cols, rows } = this.props;
-            this.resize(cols, rows);
-        }
     }
 
     // http://www.alexandre-gomes.com/?p=115
@@ -325,26 +166,19 @@ class TerminalWrapper extends PureComponent {
         document.body.appendChild(outer);
         const w1 = inner.offsetWidth;
         outer.style.overflow = 'scroll';
-        const w2 = (w1 === inner.offsetWidth) ? outer.clientWidth : inner.offsetWidth;
+    const w2 = w1 === inner.offsetWidth ? outer.clientWidth : inner.offsetWidth;
         document.body.removeChild(outer);
 
-        return (w1 - w2);
+    return w1 - w2;
     }
 
-    resize(cols = this.props.cols, rows = this.props.rows) {
-        if (!(this.term && this.term.element)) {
-            return;
-        }
-
-        const geometry = fit.proposeGeometry(this.term);
-        if (!geometry) {
-            return;
-        }
-
-        cols = (!cols || cols === 'auto') ? geometry.cols : cols;
-        rows = (!rows || rows === 'auto') ? geometry.rows : rows;
-        this.term.resize(cols, rows);
+  refitTerminal() {
+    if (this.term) {
+        this.term.fit();
     }
+    }
+
+
 
     clear() {
         this.term.clear();
@@ -363,16 +197,64 @@ class TerminalWrapper extends PureComponent {
     }
 
     writeln(data) {
-        this.term.eraseRight(0, this.term.buffer.y);
         this.term.write('\r');
         this.term.write(data);
         this.term.prompt();
     }
 
+  handleCommandExecute = () => {
+    const command = this.inputRef.current.value;
+
+    if (!command) {
+      return;
+    }
+
+    controller.writeln(command);
+
+    const { terminalInputHistory = [] } = this.state;
+
+    const newTerminalInputHistory = terminalInputHistory.slice();
+
+    if (terminalInputHistory.length === MAX_TERMINAL_INPUT_ARRAY_SIZE) {
+      newTerminalInputHistory.shift();
+    }
+
+    store.replace('workspace.terminal.inputHistory', [...newTerminalInputHistory, command]);
+
+    this.setState({
+      terminalInputHistory: [...newTerminalInputHistory, command],
+      terminalInputIndex: newTerminalInputHistory.length + 1,
+    });
+
+    this.inputRef.current.value = '';
+  };
+
+  updateInputHistoryIndex = (index) => {
+    const { terminalInputHistory } = this.state;
+    if (index < 0) {
+      return;
+    }
+
+    if (index >= terminalInputHistory.length) {
+      this.setState((current) => ({ terminalInputIndex: current.terminalInputHistory.length }));
+      this.inputRef.current.value = '';
+      return;
+    }
+
+    this.setState({ terminalInputIndex: index });
+  };
+
+  resetTerminalInputIndex = () => {
+    this.setState((current) => ({ terminalInputIndex: current.terminalInputHistory.length }));
+    this.inputRef.current.value = '';
+  };
+
     render() {
         const { className, style } = this.props;
+    const { terminalInputIndex } = this.state;
 
         return (
+      <div style={{ display: 'grid', width: '100%', gridTemplateRows: '11fr 1fr' }}>
             <div
                 ref={node => {
                     this.terminalContainer = node;
@@ -380,6 +262,81 @@ class TerminalWrapper extends PureComponent {
                 className={cx(className, styles.terminalContainer)}
                 style={style}
             />
+
+        <div
+          style={{ display: 'grid', gridTemplateColumns: '1fr 18fr 5fr', alignItems: 'center', textAlign: 'center' }}
+        >
+          <span style={{ opacity: '0.6' }}>&gt;</span>
+          <input
+            onKeyDown={(e) => {
+              switch (e.key) {
+                case 'Backspace': {
+                  const { value } = e.target;
+                  //If there is only one character left and the user has pressed the backspace,
+                  //this will mean the value is empty now
+                  if (!value || value.slice().length === 1) {
+                    this.resetTerminalInputIndex();
+                  }
+                  break;
+                }
+                case 'Enter': {
+                  this.handleCommandExecute();
+                  break;
+                }
+
+                case 'ArrowUp': {
+                  this.updateInputHistoryIndex(terminalInputIndex - 1);
+                  break;
+                }
+
+                case 'ArrowDown': {
+                  this.updateInputHistoryIndex(terminalInputIndex + 1);
+                  break;
+                }
+
+                case 'g': {
+                  e.key = 'G';
+                  break;
+                }
+
+                case 'm': {
+                  e.key = 'M';
+                  break;
+                }
+
+                default: {
+                  break;
+                }
+              }
+            }}
+            onChange={(e) => {
+              if (!e.target.value) {
+                this.resetTerminalInputIndex();
+              }
+            }}
+            type="text"
+            ref={this.inputRef}
+            style={{
+              border: 'none',
+              background: '#e5e7eb',
+              outline: 'none',
+            }}
+            placeholder="Enter G-Code Here..."
+          />
+          <Button
+            onClick={this.handleCommandExecute}
+            primary
+            style={{
+              margin: '0px',
+              height: '100%',
+              border: 'none',
+              borderRadius: '0px',
+            }}
+          >
+            Run
+          </Button>
+        </div>
+      </div>
         );
     }
 }

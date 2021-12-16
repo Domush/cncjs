@@ -8,7 +8,7 @@ export const getPagingRange = ({ page = 1, pageLength = 10, totalRecords = 0 }) 
     if (!pageLength || pageLength < 1) {
         pageLength = 10;
     }
-    if (((page - 1) * pageLength) >= totalRecords) {
+  if ((page - 1) * pageLength >= totalRecords) {
         page = Math.ceil(totalRecords / pageLength);
     }
 

@@ -48,8 +48,8 @@ const Controller = (props) => {
                                     top: 10
                                 }}
                                 onClick={event => {
-                                    controller.writeln('$#'); // Parameters
-                                    controller.writeln('$$'); // Settings
+                                    controller.writeln('M115'); // Parameters
+                                    controller.writeln('M503'); // Settings
                                 }}
                             >
                                 <i className="fa fa-refresh" />

@@ -47,8 +47,14 @@ class ImmutableStore extends events.EventEmitter {
 
         this.unset(key);
         this.set(key, value);
+    this.emit('replace', this.state);
         return this.state;
     }
+
+  restoreState(state) {
+    this.clear();
+    this.state = state;
+  }
 
     clear() {
         this.state = {};

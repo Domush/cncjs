@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom';
 import { withRouter } from 'react-router-dom';
 import { Button, ButtonGroup, ButtonToolbar } from 'app/components/Buttons';
 import api from 'app/api';
+import { Confirm } from 'app/components/ConfirmationDialog/ConfirmationDialogLib';
 import {
     WORKFLOW_STATE_IDLE
 } from 'app/constants';
@@ -28,6 +29,7 @@ import {
     MODAL_FEEDER_WAIT,
     MODAL_SERVER_DISCONNECTED
 } from './constants';
+import ConfirmationDialog from '../../components/ConfirmationDialog/ConfirmationDialog.js';
 
 const WAIT = '%wait';
 
@@ -89,7 +91,15 @@ class Workspace extends PureComponent {
                     }
                 }
             }));
-        }
+    },
+    sendRestartCommand: () => {
+      if (isElectron()) {
+        window.ipcRenderer.send('restart_app');
+      }
+    },
+    reconnect: () => {
+      controller.reconnect();
+    }
     };
 
     sortableGroup = {
@@ -131,6 +141,7 @@ class Workspace extends PureComponent {
                 this.action.closeModal();
             } else {
                 this.action.openModal(MODAL_SERVER_DISCONNECTED);
+        this.action.reconnect();
             }
         },
         'serialport:open': (options) => {
@@ -173,14 +184,27 @@ class Workspace extends PureComponent {
                 'M2': i18n._('M2 Program End'),
                 'M30': i18n._('M30 Program End'),
                 'M6': i18n._('M6 Tool Change'),
-                'M109': i18n._('M109 Set Extruder Temperature'),
-                'M190': i18n._('M190 Set Heated Bed Temperature')
             }[data] || data;
 
+      if (hold) {
+        Confirm({
+          title,
+          content: 'Press "Resume" to continue operation.',
+          confirmLabel: 'Resume',
+          cancelLabel: 'Stop',
+          onConfirm: () => {
+            controller.command('feeder:start');
+          },
+          onClose: () => {
+            controller.command('feeder:stop');
+          },
+        });
+      }
+      /*
             this.action.openModal(MODAL_FEEDER_PAUSED, {
                 title: title
-            });
-        }
+            });*/
+    },
     };
 
     widgetEventHandler = {
@@ -499,6 +523,7 @@ class Workspace extends PureComponent {
                     }}
                 >
                     <div className={styles.workspaceTable}>
+              <ConfirmationDialog />
                         <div className={styles.workspaceTableRow}>
                             <div
                                 ref={node => {

@@ -8,6 +8,7 @@ class Console extends PureComponent {
     static propTypes = {
         state: PropTypes.object,
         actions: PropTypes.object
+    active: PropTypes.bool,
     };
 
     terminal = null;
@@ -19,7 +20,7 @@ class Console extends PureComponent {
         if (!port) {
             return (
                 <div className={styles.noSerialConnection}>
-                    {i18n._('No serial connection')}
+                    {i18n._('Not connected to a device')}
                 </div>
             );
         }
@@ -37,6 +38,7 @@ class Console extends PureComponent {
                 scrollback={state.terminal.scrollback}
                 tabStopWidth={state.terminal.tabStopWidth}
                 onData={actions.onTerminalData}
+        active={this.props.active}
             />
         );
     }

@@ -26,7 +26,7 @@ class History {
     }
 
     forward() {
-        if ((this.history.length === 0) || (this.index + 1 >= this.history.length)) {
+    if (this.history.length === 0 || this.index + 1 >= this.history.length) {
             return undefined;
         }
 
@@ -36,7 +36,7 @@ class History {
     }
 
     back() {
-        if ((this.history.length === 0) || (this.index - 1 < 0)) {
+    if (this.history.length === 0 || this.index - 1 < 0) {
             return undefined;
         }
 

@@ -167,7 +167,7 @@ class ProbeWidget extends PureComponent {
 
                 // Dwell
                 gcode('; A dwell time of one second'),
-                gcode('G4 P1'),
+                (controllerType === MARLIN) ? gcode('G4 S1') : gcode('G4 P1'),
 
                 // Apply touch plate height with tool length offset
                 gcode('; Set tool length offset'),
@@ -197,7 +197,7 @@ class ProbeWidget extends PureComponent {
 
                 // Set the WCS 0 offset
                 gcode(`; Set the active WCS ${probeAxis}0`),
-                gcode('G10', {
+                (controllerType === MARLIN) ? gcode(`G92 ${probeAxis}${touchPlateHeight}`) : gcode('G10', {
                     L: 20,
                     P: mapWCSToP(wcs),
                     [probeAxis]: touchPlateHeight

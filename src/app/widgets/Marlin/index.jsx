@@ -79,19 +79,6 @@ class MarlinWidget extends PureComponent {
                 }
             });
         },
-        toggleHeaterControl: () => {
-            const expanded = this.state.panel.heaterControl.expanded;
-
-            this.setState({
-                panel: {
-                    ...this.state.panel,
-                    heaterControl: {
-                        ...this.state.panel.heaterControl,
-                        expanded: !expanded
-                    }
-                }
-            });
-        },
         toggleStatusReports: () => {
             const expanded = this.state.panel.statusReports.expanded;
 
@@ -118,42 +105,6 @@ class MarlinWidget extends PureComponent {
                 }
             });
         },
-        changeExtruderTemperature: (event) => {
-            const value = event.target.value;
-            if (typeof value === 'string' && value.trim() === '') {
-                this.setState(state => ({
-                    heater: {
-                        ...state.heater,
-                        extruder: value
-                    }
-                }));
-            } else {
-                this.setState(state => ({
-                    heater: {
-                        ...state.heater,
-                        extruder: ensurePositiveNumber(value)
-                    }
-                }));
-            }
-        },
-        changeHeatedBedTemperature: (event) => {
-            const value = event.target.value;
-            if (typeof value === 'string' && value.trim() === '') {
-                this.setState(state => ({
-                    heater: {
-                        ...state.heater,
-                        heatedBed: value
-                    }
-                }));
-            } else {
-                this.setState(state => ({
-                    heater: {
-                        ...state.heater,
-                        heatedBed: ensurePositiveNumber(value)
-                    }
-                }));
-            }
-        }
     };
 
     controllerEvents = {
@@ -204,19 +155,11 @@ class MarlinWidget extends PureComponent {
         const {
             minimized,
             panel,
-            heater
         } = this.state;
 
         this.config.set('minimized', minimized);
-        this.config.set('panel.heaterControl.expanded', panel.heaterControl.expanded);
         this.config.set('panel.statusReports.expanded', panel.statusReports.expanded);
         this.config.set('panel.modalGroups.expanded', panel.modalGroups.expanded);
-        if (isNumber(heater.extruder)) {
-            this.config.set('heater.extruder', heater.extruder);
-        }
-        if (isNumber(heater.heatedBed)) {
-            this.config.set('heater.heatedBed', heater.heatedBed);
-        }
     }
 
     getInitialState() {
@@ -236,19 +179,12 @@ class MarlinWidget extends PureComponent {
                 params: {}
             },
             panel: {
-                heaterControl: {
-                    expanded: this.config.get('panel.heaterControl.expanded')
-                },
                 statusReports: {
                     expanded: this.config.get('panel.statusReports.expanded')
                 },
                 modalGroups: {
                     expanded: this.config.get('panel.modalGroups.expanded')
                 }
-            },
-            heater: {
-                extruder: this.config.get('heater.extruder', 0),
-                heatedBed: this.config.get('heater.heatedBed', 0)
             }
         };
     }
@@ -321,10 +257,10 @@ class MarlinWidget extends PureComponent {
                                 toggle={<i className="fa fa-th-large" />}
                             >
                                 <Widget.DropdownMenuItem
-                                    onSelect={() => controller.writeln('M105')}
+                                    onSelect={() => controller.writeln('M503')}
                                     disabled={!state.canClick}
                                 >
-                                    {i18n._('Get Extruder Temperature (M105)')}
+                                    {i18n._('Get Current Settings (M503)')}
                                 </Widget.DropdownMenuItem>
                                 <Widget.DropdownMenuItem
                                     onSelect={() => controller.writeln('M114')}

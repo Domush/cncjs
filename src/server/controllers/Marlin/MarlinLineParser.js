@@ -5,7 +5,6 @@ import MarlinLineParserResultFirmware from './MarlinLineParserResultFirmware';
 import MarlinLineParserResultOk from './MarlinLineParserResultOk';
 import MarlinLineParserResultPosition from './MarlinLineParserResultPosition';
 import MarlinLineParserResultStart from './MarlinLineParserResultStart';
-import MarlinLineParserResultTemperature from './MarlinLineParserResultTemperature';
 
 class MarlinLineParser {
     parse(line) {
@@ -27,10 +26,6 @@ class MarlinLineParser {
 
             // Error:Printer halted. kill() called!
             MarlinLineParserResultError,
-
-            // ok T:293.0 /0.0 B:25.9 /0.0 @:0 B@:0
-            //  T:293.0 /0.0 B:25.9 /0.0 @:0 B@:0
-            MarlinLineParserResultTemperature
         ];
 
         for (let parser of parsers) {

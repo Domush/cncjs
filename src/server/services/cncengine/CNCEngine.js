@@ -81,6 +81,11 @@ class CNCEngine {
 
     sockets = [];
 
+  // File content and metadata
+  gcode = null;
+
+  meta = null;
+
     // Event Trigger
     event = new EventTrigger((event, trigger, commands) => {
         log.debug(`EventTrigger: event="${event}", trigger="${trigger}", commands="${commands}"`);
@@ -134,7 +139,10 @@ class CNCEngine {
         this.server = server;
         this.io = socketIO(this.server, {
             serveClient: true,
-            path: '/socket.io'
+      path: '/socket.io',
+      pingTimeout: 60000,
+      pingInterval: 25000,
+      maxHttpBufferSize: 40e6,
         });
 
         this.io.use(socketioJwt.authorize({
@@ -192,7 +200,24 @@ class CNCEngine {
                 this.sockets.splice(this.sockets.indexOf(socket), 1);
             });
 
-            // List the available serial ports
+      socket.on('reconnect', (port) => {
+        let controller = store.get(`controllers["${port}"]`);
+        if (!controller) {
+          log.info(`No controller found on port ${port} to reconnect to`);
+          return;
+        }
+        log.info(`Reconnecting to open controller on port ${port} with socket ID ${socket.id}`);
+        controller.addConnection(socket);
+        log.info(`Controller state: ${controller.isOpen()}`);
+        if (controller.isOpen()) {
+          log.info('Joining port room on socket');
+          socket.join(port);
+        } else {
+          log.info('Controller no longer open');
+        }
+      });
+
+      // List the available serial ports
             socket.on('list', () => {
                 log.debug(`socket.list(): id=${socket.id}`);
 
@@ -256,6 +281,12 @@ class CNCEngine {
                 }
 
                 controller.addConnection(socket);
+        // Load file to controller if it exists
+        if (this.hasFileLoaded()) {
+          controller.loadFile(this.gcode, this.meta);
+        } else {
+          log.debug('No file in CNCEngine to load to sender');
+        }
 
                 if (controller.isOpen()) {
                     // Join the room
@@ -354,6 +385,20 @@ class CNCEngine {
 
                 controller.writeln(data, context);
             });
+
+      socket.on('hPing', () => {
+        log.debug(`Health check received at ${new Date().toLocaleTimeString()}`);
+        socket.emit('hPong');
+      });
+
+      socket.on('file:fetch', () => {
+        socket.emit('file:fetch', this.gcode, this.meta);
+      });
+
+      socket.on('file:unload', () => {
+        log.debug('Socket unload called');
+        this.unload();
+      });
         });
     }
 
@@ -370,6 +415,46 @@ class CNCEngine {
         taskRunner.removeListener('error', this.listener.taskError);
         config.removeListener('change', this.listener.configChange);
     }
+
+  // Emit message across all sockets
+  emit(msg, ...args) {
+    this.sockets.forEach((socket) => {
+      socket.emit(msg, ...args);
+    });
+  }
+
+  /* Functions related to loading file through server */
+  // If gcode is going to live in CNCengine, we need functions to access or unload it.
+  load({ port, gcode, ...meta }) {
+    this.gcode = gcode;
+    this.meta = meta;
+
+    // Load the file to the sender if controller connection exists
+    if (port) {
+      const controller = store.get(`controllers["${port}"]`);
+      if (controller) {
+        controller.loadFile(this.gcode, this.meta);
+      }
+    }
+
+    log.info(`Loaded file '${meta.name}' to CNCEngine`);
+    this.emit('file:load', gcode, meta.size, meta.name, meta.visualizer);
+  }
+
+  unload() {
+    log.info('Unloading file from CNCEngine');
+    this.gcode = null;
+    this.meta = null;
+    this.emit('file:unload');
+  }
+
+  fetchGcode() {
+    return [this.gcode, this.meta];
+  }
+
+  hasFileLoaded() {
+    return this.gcode !== null;
+  }
 }
 
 export default CNCEngine;

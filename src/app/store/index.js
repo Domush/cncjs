@@ -11,6 +11,7 @@ import settings from '../config/settings';
 import ImmutableStore from '../lib/immutable-store';
 import log from '../lib/log';
 import defaultState from './defaultState';
+import { METRIC_UNITS } from '../constants.js';
 
 const store = new ImmutableStore(defaultState);
 
@@ -114,6 +115,12 @@ const normalizeState = (state) => {
         set(state, 'widgets.axes.axes', defaultAxes);
     }
 
+  const units = get(cnc.state, 'workspace.units');
+  if (units) {
+    set(state, 'workspace.units', units);
+  } else {
+    set(state, 'workspace.units', METRIC_UNITS);
+  }
     return state;
 };
 

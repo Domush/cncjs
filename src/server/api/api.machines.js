@@ -63,6 +63,8 @@ const ensureMachineProfile = (payload) => {
     };
 };
 
+const isFn = (a) => typeof a === 'function';
+
 export const fetch = (req, res) => {
     const records = getSanitizedRecords();
     const paging = !!req.query.paging;
@@ -154,7 +156,7 @@ export const update = (req, res) => {
             const defaultValue = _get(record, key);
             const value = _get(nextRecord, key, defaultValue);
 
-            _set(record, key, (typeof ensureType === 'function') ? ensureType(value) : value);
+      _set(record, key, isFn(ensureType) ? ensureType(value) : value);
         });
 
         config.set(CONFIG_KEY, records);

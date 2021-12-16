@@ -1,7 +1,7 @@
 class MarlinLineParserResultStart {
     // start
     static parse(line) {
-        const r = line.match(/^(?:echo:)?start$/);
+        const r = line.match(/^(?:echo:)?start$/i);
         if (!r) {
             return null;
         }

@@ -7,7 +7,6 @@ import MarlinLineParserResultPosition from './MarlinLineParserResultPosition';
 import MarlinLineParserResultOk from './MarlinLineParserResultOk';
 import MarlinLineParserResultEcho from './MarlinLineParserResultEcho';
 import MarlinLineParserResultError from './MarlinLineParserResultError';
-import MarlinLineParserResultTemperature from './MarlinLineParserResultTemperature';
 
 class MarlinRunner extends events.EventEmitter {
     state = {
@@ -30,8 +29,6 @@ class MarlinRunner extends events.EventEmitter {
         },
         ovF: 100,
         ovS: 100,
-        extruder: {}, // { deg, degTarget, power }
-        heatedBed: {}, // { deg, degTarget, power }
         rapidFeedrate: 0, // Related to G0
         feedrate: 0, // Related to G1, G2, G3, G38.2, G38.3, G38.4, G38.5, G80
         spindle: 0 // Related to M3, M4, M5
@@ -50,8 +47,7 @@ class MarlinRunner extends events.EventEmitter {
 
         this.emit('raw', { raw: data });
 
-        const result = this.parser.parse(data) || {};
-        const { type, payload } = result;
+    const { type, payload } = this.parser.parse(data) || {};
 
         if (type === MarlinLineParserResultStart) {
             this.emit('start', payload);
@@ -105,36 +101,6 @@ class MarlinRunner extends events.EventEmitter {
         }
         if (type === MarlinLineParserResultEcho) {
             this.emit('echo', payload);
-            return;
-        }
-        if (type === MarlinLineParserResultTemperature) {
-            const nextState = {
-                ...this.state,
-                extruder: {
-                    ...this.state.extruder,
-                    ...payload.extruder
-                },
-                heatedBed: {
-                    ...this.state.heatedBed,
-                    ...payload.heatedBed
-                }
-            };
-
-            if (!_.isEqual(this.state.extruder, nextState.extruder) ||
-                !_.isEqual(this.state.heatedBed, nextState.heatedBed)) {
-                this.state = nextState; // enforce change
-            }
-
-            // The 'ok' event (w/ empty response) should follow the 'temperature' event
-            this.emit('temperature', payload);
-
-            // > M105
-            // < ok T:27.0 /0.0 B:26.8 /0.0 B@:0 @:0
-            if (payload.ok) {
-                // Emit an 'ok' event with empty response
-                this.emit('ok');
-            }
-
             return;
         }
         if (data.length > 0) {

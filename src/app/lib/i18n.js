@@ -6,7 +6,7 @@ const t = (...args) => {
     const options = args[1];
 
     let text = i18next.t(key, options);
-    if (typeof text === 'string' && text.length === 0) {
+  if (isString(text) && text.length === 0) {
         text = i18next.t(key, { ...options, lng: 'en' });
     }
 
@@ -41,6 +41,8 @@ const _ = (...args) => {
 
     return text;
 };
+
+const isString = (a) => typeof a === 'string';
 
 export default {
     t,

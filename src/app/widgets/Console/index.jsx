@@ -14,15 +14,17 @@ import Console from './Console';
 import styles from './index.styl';
 
 // The buffer starts with 254 bytes free. The terminating <LF> or <CR> counts as a byte.
-const TERMINAL_COLS = 254;
-const TERMINAL_ROWS = 15;
+const TERMINAL_COLS = 50;
+const TERMINAL_ROWS = 12;
 
 class ConsoleWidget extends PureComponent {
     static propTypes = {
         widgetId: PropTypes.string.isRequired,
         onFork: PropTypes.func.isRequired,
         onRemove: PropTypes.func.isRequired,
-        sortable: PropTypes.object
+    sortable: PropTypes.object,
+    embedded: PropTypes.bool,
+    active: PropTypes.bool,
     };
 
     senderId = uuid.v4();
@@ -48,17 +50,13 @@ class ConsoleWidget extends PureComponent {
                 terminal: {
                     ...state.terminal,
                     rows: state.isFullscreen ? TERMINAL_ROWS : 'auto'
-                }
-            }), () => {
-                this.resizeTerminal();
-            });
+        },
+      }));
         },
         toggleMinimized: () => {
             this.setState(state => ({
                 minimized: !state.minimized
-            }), () => {
-                this.resizeTerminal();
-            });
+      }));
         },
         clearAll: () => {
             this.terminal && this.terminal.clear();
@@ -77,6 +75,7 @@ class ConsoleWidget extends PureComponent {
             this.setState({ port: port });
 
             if (this.terminal) {
+        this.terminal.refitTerminal();
                 const { productName, version } = settings;
                 this.terminal.writeln(color.white.bold(`${productName} ${version} [${controller.type}]`));
                 this.terminal.writeln(color.white(i18n._('Connected to {{-port}} with a baud rate of {{baudrate}}', { port: color.yellowBright(port), baudrate: color.blueBright(baudrate) })));
@@ -86,10 +85,10 @@ class ConsoleWidget extends PureComponent {
             this.actions.clearAll();
 
             const initialState = this.getInitialState();
-            this.setState({ ...initialState });
+      this.setState(initialState);
         },
         'serialport:write': (data, context) => {
-            const { source, __sender__ } = { ...context };
+      const { source, __sender__ } = context;
 
             if (__sender__ === this.senderId) {
                 // Do not write to the terminal console if the sender is the widget itself
@@ -101,6 +100,8 @@ class ConsoleWidget extends PureComponent {
             }
 
             data = String(data).trim();
+      // Handle non-ascii characters more gracefully
+      data = data.replace(/[^\x20-\x7E]/g, (m) => '\\x' + m.charCodeAt(0).toString(16));
 
             if (source) {
                 this.terminal.writeln(color.blackBright(source) + color.white(this.terminal.prompt + data));
@@ -159,6 +160,7 @@ class ConsoleWidget extends PureComponent {
     subscribe() {
         const tokens = [
             pubsub.subscribe('resize', (msg) => {
+        this.terminal.refitTerminal();
                 this.resizeTerminal();
             })
         ];
@@ -191,19 +193,15 @@ class ConsoleWidget extends PureComponent {
     }
 
     render() {
-        const { widgetId } = this.props;
-        const { minimized, isFullscreen } = this.state;
+    const { widgetId, embedded, active } = this.props;
+    const { minimized, isFullscreen } = state;
         const isForkedWidget = widgetId.match(/\w+:[\w\-]+/);
-        const state = {
-            ...this.state
-        };
-        const actions = {
-            ...this.actions
-        };
+    const state = this.state;
+    const actions = this.actions;
 
         return (
             <Widget fullscreen={isFullscreen}>
-                <Widget.Header>
+        <Widget.Header embedded={embedded}>
                     <Widget.Title>
                         <Widget.Sortable className={this.props.sortable.handleClassName}>
                             <i className="fa fa-bars" />
@@ -292,10 +290,11 @@ class ConsoleWidget extends PureComponent {
                 <Widget.Content
                     className={cx(
                         styles.widgetContent,
+            styles.terminalContent,
                         { [styles.hidden]: minimized },
                         { [styles.fullscreen]: isFullscreen }
                     )}
-                    style={{ width: '100%', padding: '10px' }}
+                    style={{ width: '100%' }}
                 >
                     <Console
                         ref={node => {
@@ -305,6 +304,7 @@ class ConsoleWidget extends PureComponent {
                         }}
                         state={state}
                         actions={actions}
+            active={active}
                     />
                 </Widget.Content>
             </Widget>
