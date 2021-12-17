@@ -5,10 +5,10 @@ module.exports = {
   semi: true, // semicolon at the end
   singleQuote: true, // apostrophe
   jsxSingleQuote: false, //Use single quotes in jsx
-  trailingComma: 'es5', // trailing comma
+  trailingComma: 'none', // trailing comma
   arrowParens: 'always', // Use arrow functions only when necessary ()
   htmlWhitespaceSensitivity: 'css', // html space sensitivity
   endOfLine: 'lf',
   proseWrap: 'never',
-  quoteProps: 'consistent',
+  quoteProps: 'as-needed',
 };

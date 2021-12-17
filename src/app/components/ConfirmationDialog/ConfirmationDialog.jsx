@@ -3,9 +3,9 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import pubsub from 'pubsub-js';
 import cx from 'classnames';
-import styles from './index.styl.js';
-import ConfirmationDialogButton from './ConfirmationDialogButton.js';
-import { DIALOG_CONFIRM, DIALOG_CANCEL } from './ConfirmationDialogLib.js';
+import styles from './index.styl';
+import ConfirmationDialogButton from './ConfirmationDialogButton';
+import { DIALOG_CONFIRM, DIALOG_CANCEL } from './ConfirmationDialogLib';
 
 const ConfirmationDialog = () => {
   const [show, setShow] = useState(false);

@@ -18,76 +18,76 @@ import styles from './index.styl';
 Terminal.applyAddon(fit);
 
 class TerminalWrapper extends PureComponent {
-    static propTypes = {
-        cols: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-        rows: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-        cursorBlink: PropTypes.bool,
-        scrollback: PropTypes.number,
-        tabStopWidth: PropTypes.number,
+  static propTypes = {
+    cols: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    rows: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    cursorBlink: PropTypes.bool,
+    scrollback: PropTypes.number,
+    tabStopWidth: PropTypes.number,
     onData: PropTypes.func,
-    active: PropTypes.bool,
-    };
+    active: PropTypes.bool
+  };
 
-    static defaultProps = {
-        cols: 'auto',
-        rows: 'auto',
+  static defaultProps = {
+    cols: 'auto',
+    rows: 'auto',
     cursorBlink: false,
-        scrollback: 1000,
-        tabStopWidth: 4,
-        onData: () => {}
+    scrollback: 1000,
+    tabStopWidth: 4,
+    onData: () => {}
   };
 
   state = {
     terminalInputHistory: store.get('workspace.terminal.inputHistory', []),
-    terminalInputIndex: store.get('workspace.terminal.inputHistory')?.length,
-    };
+    terminalInputIndex: store.get('workspace.terminal.inputHistory')?.length
+  };
 
   prompt = ' ';
 
-    history = new History(1000);
+  history = new History(1000);
 
-    verticalScrollbar = null;
+  verticalScrollbar = null;
 
-    terminalContainer = null;
+  terminalContainer = null;
 
-    term = null;
+  term = null;
 
   debounce = debounce;
 
   inputRef = React.createRef();
 
-    eventHandler = {
+  eventHandler = {
     onKey: (() => async (event) => {
-                const term = this.term;
+      const term = this.term;
       const line = term.getSelection();
 
-                if (!line) {
-                    return;
-                }
+      if (!line) {
+        return;
+      }
 
       // Ctrl-C copy - ctrl + c on windows/linux, meta-c on mac
       if ((event.ctrlKey || event.metaKey) && event.code === 'KeyC') {
         await navigator.clipboard.writeText(line);
         return;
       }
-        })(),
+    })()
+  };
+
+  componentDidMount() {
+    const { cursorBlink, scrollback, tabStopWidth } = this.props;
+    this.term = new Terminal({
+      cursorBlink,
+      scrollback,
+      tabStopWidth
+    });
+    this.term.prompt = () => {
+      this.term.write('\r\n');
+      //            this.term.write(color.white(this.prompt));
     };
 
-    componentDidMount() {
-        const { cursorBlink, scrollback, tabStopWidth } = this.props;
-        this.term = new Terminal({
-            cursorBlink,
-            scrollback,
-            tabStopWidth
-        });
-        this.term.prompt = () => {
-            this.term.write('\r\n');
-//            this.term.write(color.white(this.prompt));
-        };
-
-        const el = ReactDOM.findDOMNode(this.terminalContainer);
-        this.term.open(el);
-        this.term.focus(false);
+    const el = ReactDOM.findDOMNode(this.terminalContainer);
+    this.term.open(el);
+    this.term.focus(false);
 
     this.term.setOption(
       'fontFamily',
@@ -97,11 +97,11 @@ class TerminalWrapper extends PureComponent {
 
     this.term.attachCustomKeyEventHandler(this.eventHandler.onKey);
 
-        const xtermElement = el.querySelector('.xterm');
-        xtermElement.style.paddingLeft = '3px';
+    const xtermElement = el.querySelector('.xterm');
+    xtermElement.style.paddingLeft = '3px';
 
-        const viewportElement = el.querySelector('.xterm-viewport');
-        this.verticalScrollbar = new PerfectScrollbar(viewportElement);
+    const viewportElement = el.querySelector('.xterm-viewport');
+    this.verticalScrollbar = new PerfectScrollbar(viewportElement);
 
     window.addEventListener(
       'resize',
@@ -132,75 +132,72 @@ class TerminalWrapper extends PureComponent {
       this.inputRef.current.focus();
       this.inputRef.current.value = terminalInputHistory[this.state.terminalInputIndex] || '';
     }
-    }
+  }
 
-    componentWillUnmount() {
-        if (this.verticalScrollbar) {
-            this.verticalScrollbar.destroy();
-            this.verticalScrollbar = null;
-        }
-        if (this.term) {
+  componentWillUnmount() {
+    if (this.verticalScrollbar) {
+      this.verticalScrollbar.destroy();
+      this.verticalScrollbar = null;
+    }
+    if (this.term) {
       this.term.onKey(null);
-            this.term = null;
-        }
-            window.removeEventListener('resize', this.debounce);
-
+      this.term = null;
     }
+    window.removeEventListener('resize', this.debounce);
+  }
 
-    // http://www.alexandre-gomes.com/?p=115
-    getScrollbarWidth() {
-        const inner = document.createElement('p');
-        inner.style.width = '100%';
-        inner.style.height = '200px';
+  // http://www.alexandre-gomes.com/?p=115
+  getScrollbarWidth() {
+    const inner = document.createElement('p');
+    inner.style.width = '100%';
+    inner.style.height = '200px';
 
-        const outer = document.createElement('div');
-        outer.style.position = 'absolute';
-        outer.style.top = '0px';
-        outer.style.left = '0px';
-        outer.style.visibility = 'hidden';
-        outer.style.width = '200px';
-        outer.style.height = '150px';
-        outer.style.overflow = 'hidden';
-        outer.appendChild(inner);
+    const outer = document.createElement('div');
+    outer.style.position = 'absolute';
+    outer.style.top = '0px';
+    outer.style.left = '0px';
+    outer.style.visibility = 'hidden';
+    outer.style.width = '200px';
+    outer.style.height = '150px';
+    outer.style.overflow = 'hidden';
+    outer.appendChild(inner);
 
-        document.body.appendChild(outer);
-        const w1 = inner.offsetWidth;
-        outer.style.overflow = 'scroll';
+    document.body.appendChild(outer);
+    const w1 = inner.offsetWidth;
+    outer.style.overflow = 'scroll';
     const w2 = w1 === inner.offsetWidth ? outer.clientWidth : inner.offsetWidth;
-        document.body.removeChild(outer);
+    document.body.removeChild(outer);
 
     return w1 - w2;
-    }
+  }
 
   refitTerminal() {
     if (this.term) {
-        this.term.fit();
+      this.term.fit();
     }
-    }
+  }
 
+  clear() {
+    this.term.clear();
+  }
 
+  selectAll() {
+    this.term.selectAll();
+  }
 
-    clear() {
-        this.term.clear();
-    }
+  clearSelection() {
+    this.term.clearSelection();
+  }
 
-    selectAll() {
-        this.term.selectAll();
-    }
+  write(data) {
+    this.term.write(data);
+  }
 
-    clearSelection() {
-        this.term.clearSelection();
-    }
-
-    write(data) {
-        this.term.write(data);
-    }
-
-    writeln(data) {
-        this.term.write('\r');
-        this.term.write(data);
-        this.term.prompt();
-    }
+  writeln(data) {
+    this.term.write('\r');
+    this.term.write(data);
+    this.term.prompt();
+  }
 
   handleCommandExecute = () => {
     const command = this.inputRef.current.value;
@@ -223,7 +220,7 @@ class TerminalWrapper extends PureComponent {
 
     this.setState({
       terminalInputHistory: [...newTerminalInputHistory, command],
-      terminalInputIndex: newTerminalInputHistory.length + 1,
+      terminalInputIndex: newTerminalInputHistory.length + 1
     });
 
     this.inputRef.current.value = '';
@@ -249,19 +246,19 @@ class TerminalWrapper extends PureComponent {
     this.inputRef.current.value = '';
   };
 
-    render() {
-        const { className, style } = this.props;
+  render() {
+    const { className, style } = this.props;
     const { terminalInputIndex } = this.state;
 
-        return (
+    return (
       <div style={{ display: 'grid', width: '100%', gridTemplateRows: '11fr 1fr' }}>
-            <div
-                ref={node => {
-                    this.terminalContainer = node;
-                }}
-                className={cx(className, styles.terminalContainer)}
-                style={style}
-            />
+        <div
+          ref={(node) => {
+            this.terminalContainer = node;
+          }}
+          className={cx(className, styles.terminalContainer)}
+          style={style}
+        />
 
         <div
           style={{ display: 'grid', gridTemplateColumns: '1fr 18fr 5fr', alignItems: 'center', textAlign: 'center' }}
@@ -319,7 +316,7 @@ class TerminalWrapper extends PureComponent {
             style={{
               border: 'none',
               background: '#e5e7eb',
-              outline: 'none',
+              outline: 'none'
             }}
             placeholder="Enter G-Code Here..."
           />
@@ -330,15 +327,15 @@ class TerminalWrapper extends PureComponent {
               margin: '0px',
               height: '100%',
               border: 'none',
-              borderRadius: '0px',
+              borderRadius: '0px'
             }}
           >
             Run
           </Button>
         </div>
       </div>
-        );
-    }
+    );
+  }
 }
 
 export default TerminalWrapper;
